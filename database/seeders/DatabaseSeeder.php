@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            UserSeeder::class,
             MonthSeeder::class
         ]);
         // User::factory(10)->create();
