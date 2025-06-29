@@ -120,118 +120,249 @@ class CartController extends Controller
             return redirect()->route('login');
         }
 
-        $address = Address::where('user_id', Auth::user()->id)->where('isdefault', 1)->first();
+        // dd(Auth::user()->id);
+
+        // $address = Address::where('user_id', Auth::user()->id)->where('isdefault', 1)->first();
+        $address = Address::where('user_id', Auth::user()->id)->where('isdefault', 0)->first();
+
         return view('checkout', compact('address'));
     }
 
+    // public function place_an_order(Request $request)
+    // {
+    //     $user_id = Auth::user()->id;
+    //     $address = Address::where('user_id', $user_id)->where('isdefault', true)->first();
+
+    //     if (!$address) {
+    //         $request->validate([
+    //             'name' => 'required|max:100',
+    //             'phone' => 'required|numeric|digits:12',
+    //             'zip' => 'required|numeric|digits:6',
+    //             'state' => 'required',
+    //             'city' => 'required',
+    //             'address' => 'required',
+    //             'locality' => 'required',
+    //             'landmark' => 'required',
+    //         ]);
+
+    //         $address = new Address();
+    //         $address->name = $request->name;
+    //         $address->phone = $request->phone;
+    //         $address->zip = $request->zip;
+    //         $address->state = $request->state;
+    //         $address->city = $request->city;
+    //         $address->address = $request->address;
+    //         $address->locality = $request->locality;
+    //         $address->landmark = $request->landmark;
+    //         $address->country = 'Indonesia';
+    //         $address->user_id = $user_id;
+    //         $address->isdefault = true;
+    //         $address->save();
+    //     }
+    //     $this->setAmountforCheckout();
+
+    //     $order = new Order();
+    //     $order->user_id = $user_id;
+    //     $order->subtotal = Session::get('checkout')['subtotal'];
+    //     $order->discount = Session::get('checkout')['discount'];
+    //     $order->tax = Session::get('checkout')['tax'];
+    //     $order->total = Session::get('checkout')['total'];
+    //     $order->name = $address->name;
+    //     $order->phone = $address->phone;
+    //     $order->locality = $address->locality;
+    //     $order->address = $address->address;
+    //     $order->city = $address->city;
+    //     $order->state = $address->state;
+    //     $order->country = $address->country;
+    //     $order->landmark = $address->landmark;
+    //     $order->zip = $address->zip;
+    //     $order->save();
+
+    //     foreach (Cart::instance('cart')->content() as $item) {
+    //         $orderItem = new OrderItem();
+    //         $orderItem->product_id = $item->id;
+    //         $orderItem->order_id = $order->id;
+    //         $orderItem->price = $item->price;
+    //         $orderItem->quantity = $item->qty;
+    //         $orderItem->save();
+    //     }
+
+    //     if ($request->mode == "card") {
+    //         //
+    //     } elseif ($request->mode == "pypal") {
+    //         //
+    //     } elseif ($request->mode == "cod") {
+    //         $transection = new Transaction();
+    //         $transection->user_id = $user_id;
+    //         $transection->order_id = $order->id;
+    //         $transection->status = "pending";
+    //         $transection->save();
+    //     }
+
+    //     Cart::instance('cart')->destroy();
+    //     Session::forget('checkout');
+    //     Session::forget('coupon');
+    //     Session::forget('discounts');
+    //     Session::put('order_id', $order->id);
+    //     return redirect()->route('cart.order.comfirmation');
+    // }
+
     public function place_an_order(Request $request)
     {
-        $user_id = Auth::user()->id;
-        $address = Address::where('user_id', $user_id)->where('isdefault', true)->first();
+        $userId    = Auth::id();
+        $orderIds  = [];
 
-        if (!$address) {
-            $request->validate([
-                'name' => 'required|max:100',
-                'phone' => 'required|numeric|digits:12',
-                'zip' => 'required|numeric|digits:6',
-                'state' => 'required',
-                'city' => 'required',
-                'address' => 'required',
+        // 1) Tentukan alamat
+        if ($request->filled('address_id')) {
+            $address = Address::where('user_id', $userId)
+                ->findOrFail($request->input('address_id'));
+        } else {
+            $validated = $request->validate([
+                'name'     => 'required|max:100',
+                'phone'    => 'required|numeric|digits_between:10,15',
+                'zip'      => 'required|numeric|digits_between:5,6',
+                'state'    => 'required',
+                'city'     => 'required',
+                'address'  => 'required',
                 'locality' => 'required',
                 'landmark' => 'required',
             ]);
-
-            $address = new Address();
-            $address->name = $request->name;
-            $address->phone = $request->phone;
-            $address->zip = $request->zip;
-            $address->state = $request->state;
-            $address->city = $request->city;
-            $address->address = $request->address;
-            $address->locality = $request->locality;
-            $address->landmark = $request->landmark;
-            $address->country = 'Indonesia';
-            $address->user_id = $user_id;
-            $address->isdefault = true;
-            $address->save();
-        }
-        $this->setAmountforCheckout();
-
-        $order = new Order();
-        $order->user_id = $user_id;
-        $order->subtotal = Session::get('checkout')['subtotal'];
-        $order->discount = Session::get('checkout')['discount'];
-        $order->tax = Session::get('checkout')['tax'];
-        $order->total = Session::get('checkout')['total'];
-        $order->name = $address->name;
-        $order->phone = $address->phone;
-        $order->locality = $address->locality;
-        $order->address = $address->address;
-        $order->city = $address->city;
-        $order->state = $address->state;
-        $order->country = $address->country;
-        $order->landmark = $address->landmark;
-        $order->zip = $address->zip;
-        $order->save();
-
-        foreach (Cart::instance('cart')->content() as $item) {
-            $orderItem = new OrderItem();
-            $orderItem->product_id = $item->id;
-            $orderItem->order_id = $order->id;
-            $orderItem->price = $item->price;
-            $orderItem->quantity = $item->qty;
-            $orderItem->save();
+            $validated['user_id']   = $userId;
+            $validated['country']   = 'Indonesia';
+            $validated['isdefault'] = true;
+            $address = Address::create($validated);
         }
 
-        if ($request->mode == "card") {
-            //
-        } elseif ($request->mode == "pypal") {
-            //
-        } elseif ($request->mode == "cod") {
-            $transection = new Transaction();
-            $transection->user_id = $user_id;
-            $transection->order_id = $order->id;
-            $transection->status = "pending";
-            $transection->save();
+        // 2) Buat order per toko
+        $groups = Cart::instance('cart')
+            ->content()
+            ->groupBy(fn($i) => $i->model->store_id);
+
+        foreach ($groups as $storeId => $items) {
+            $sub     = $items->sum(fn($i) => $i->price * $i->qty);
+            $taxRate = config('cart.tax') / 100;
+            $tax     = round($sub * $taxRate, 2);
+            $total   = round($sub + $tax, 2);
+
+            $order = Order::create([
+                'user_id'   => $userId,
+                'store_id'  => $storeId,
+                'subtotal'  => round($sub, 2),
+                'discount'  => 0,
+                'tax'       => $tax,
+                'total'     => $total,
+                // alamat
+                'name'      => $address->name,
+                'phone'     => $address->phone,
+                'locality'  => $address->locality,
+                'address'   => $address->address,
+                'city'      => $address->city,
+                'state'     => $address->state,
+                'country'   => $address->country,
+                'landmark'  => $address->landmark,
+                'zip'       => $address->zip,
+            ]);
+
+            // simpan item
+            foreach ($items as $item) {
+                OrderItem::create([
+                    'order_id'   => $order->id,
+                    'product_id' => $item->id,
+                    'price'      => $item->price,
+                    'quantity'   => $item->qty,
+                ]);
+            }
+
+            // transaksi COD
+            if ($request->mode === 'cod') {
+                Transaction::create([
+                    'user_id'  => $userId,
+                    'order_id' => $order->id,
+                    'status'   => 'pending',
+                ]);
+            }
+
+            $orderIds[] = $order->id;
         }
 
+        // 3) Bersihkan cart & session lama, simpan order_ids baru
         Cart::instance('cart')->destroy();
-        Session::forget('checkout');
-        Session::forget('coupon');
-        Session::forget('discounts');
-        Session::put('order_id', $order->id);
+        Session::forget(['checkout', 'coupon', 'discounts']);
+        Session::put('order_ids', $orderIds);
+
         return redirect()->route('cart.order.comfirmation');
     }
 
-    public function setAmountforCheckout()
+
+
+
+    // public function setAmountforCheckout()
+    // {
+    //     if (!Cart::instance('cart')->content()->count() > 0) {
+    //         Session::forget('checkout');
+    //         return;
+    //     }
+    //     if (Session::has('coupon')) {
+    //         Session::put('checkout', [
+    //             'discount' => Session::get('discounts')['discount'],
+    //             'subtotal' => Session::get('discounts')['subtotal'],
+    //             'tax' => Session::get('discounts')['tax'],
+    //             'total' => Session::get('discounts')['total'],
+    //         ]);
+    //     } else {
+    //         Session::put('checkout', [
+    //             'discount' => 0,
+    //             'subtotal' => Cart::instance('cart')->subtotal(),
+    //             'tax' => Cart::instance('cart')->tax(),
+    //             'total' => Cart::instance('cart')->total(),
+    //         ]);
+    //     }
+    // }
+
+    protected function setAmountforCheckout()
     {
-        if (!Cart::instance('cart')->content()->count() > 0) {
+        // Jika keranjang kosong, batalkan checkout
+        if (Cart::instance('cart')->count() === 0) {
             Session::forget('checkout');
             return;
         }
+
         if (Session::has('coupon')) {
+            // Ambil nilai dari session discounts, hapus koma ribuan, cast ke float
+            $discounts = Session::get('discounts');
+
             Session::put('checkout', [
-                'discount' => Session::get('discounts')['discount'],
-                'subtotal' => Session::get('discounts')['subtotal'],
-                'tax' => Session::get('discounts')['tax'],
-                'total' => Session::get('discounts')['total'],
+                'discount' => (float) str_replace(',', '', $discounts['discount']),
+                'subtotal' => (float) str_replace(',', '', $discounts['subtotal']),
+                'tax'      => (float) str_replace(',', '', $discounts['tax']),
+                'total'    => (float) str_replace(',', '', $discounts['total']),
             ]);
         } else {
+            // Ambil langsung angka murni dari Cart tanpa format ribuan
+            $subtotal = Cart::instance('cart')->subtotal(2, '.', '');
+            $tax      = Cart::instance('cart')->tax(2, '.', '');
+            $total    = Cart::instance('cart')->total(2, '.', '');
+
             Session::put('checkout', [
-                'discount' => 0,
-                'subtotal' => Cart::instance('cart')->subtotal(),
-                'tax' => Cart::instance('cart')->tax(),
-                'total' => Cart::instance('cart')->total(),
+                'discount' => 0.00,
+                'subtotal' => (float) $subtotal,
+                'tax'      => (float) $tax,
+                'total'    => (float) $total,
             ]);
         }
     }
 
+
     public function order_comfirmation()
     {
-        if (Session::has('order_id')) {
-            $order = Order::find(Session::get('order_id'));
-            return view('order_confirmation', compact('order'));
+        if (! Session::has('order_ids')) {
+            return redirect()->route('cart.index');
         }
-        return redirect()->route('cart_index');
+
+        $orders = Order::with(['store', 'orderItems.product', 'transaction'])
+            ->whereIn('id', Session::get('order_ids'))
+            ->get();
+
+        return view('order_confirmation', compact('orders'));
     }
 }

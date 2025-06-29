@@ -14,12 +14,32 @@ return new class extends Migration
     {
         Schema::create('coupons', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
-            $table->enum('type',['fixed','percent']);
-            $table->decimal('value');
-            $table->decimal('cart_value');
-            $table->date('expiry_date')->default(DB::raw("(DATE(CURRENT_TIMESTAMP))"));
+
+            // 1. referensi ke toko
+            $table->unsignedBigInteger('store_id')
+                ->comment('Referensi ke stores.id');
+
+            // 2. kode kupon tanpa unique global
+            $table->string('code');
+
+            // 3. tipe dan nilai
+            $table->enum('type', ['fixed', 'percent']);
+            $table->decimal('value', 10, 2);
+            $table->decimal('cart_value', 10, 2);
+
+            $table->timestamp('expiry_date')->useCurrent();
+
             $table->timestamps();
+
+            // --- constraints & index ---
+
+            // slug/code unik per toko
+            $table->unique(['store_id', 'code']);
+
+            // foreign‐key ke stores
+            $table->foreign('store_id')
+                ->references('id')->on('stores')
+                ->onDelete('cascade');
         });
     }
 

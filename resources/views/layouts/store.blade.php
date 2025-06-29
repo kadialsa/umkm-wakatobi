@@ -51,74 +51,35 @@
               <div class="center-heading">Main Home</div>
               <ul class="menu-list">
                 <li class="menu-item">
-                  <a href="{{ route('admin.index') }}" class="">
-                    <div class="icon"><i class="icon-home"></i></div>
+                  <a href="{{ route('store.index') }}" class="">
+                    <div class="icon"><i class="icon-grid"></i></div>
                     <div class="text">Dashboard</div>
                   </a>
                 </li>
               </ul>
             </div>
-
             <div class="center-item">
               <ul class="menu-list">
-                {{-- <li class="menu-item has-children">
+                <li class="menu-item has-children">
                   <a href="javascript:void(0);" class="menu-item-button">
                     <div class="icon"><i class="icon-shopping-cart"></i></div>
                     <div class="text">Products</div>
                   </a>
                   <ul class="sub-menu">
                     <li class="sub-menu-item">
-                      <a href="{{ route('admin.product.add') }}" class="">
+                      <a href="{{ route('store.product.create') }}" class="">
                         <div class="text">Add Product</div>
                       </a>
                     </li>
                     <li class="sub-menu-item">
-                      <a href="{{ route('admin.products') }}" class="">
+                      <a href="{{ route('store.products.index') }}" class="">
                         <div class="text">Products</div>
-                      </a>
-                    </li>
-                  </ul>
-                </li> --}}
-
-                {{-- <li class="menu-item has-children">
-                                    <a href="javascript:void(0);" class="menu-item-button">
-                                        <div class="icon"><i class="icon-layers"></i></div>
-                                        <div class="text">Brand</div>
-                                    </a>
-                                    <ul class="sub-menu">
-                                        <li class="sub-menu-item">
-                                            <a href="{{ route('admin.brand.add') }}" class="">
-                                                <div class="text">New Brand</div>
-                                            </a>
-                                        </li>
-                                        <li class="sub-menu-item">
-                                            <a href="{{ route('admin.brands') }}" class="">
-                                                <div class="text">Brands</div>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li> --}}
-
-                <li class="menu-item has-children">
-                  <a href="javascript:void(0);" class="menu-item-button">
-                    <div class="icon"><i class="icon-layers"></i></div>
-                    <div class="text">Category</div>
-                  </a>
-                  <ul class="sub-menu">
-                    <li class="sub-menu-item">
-                      <a href="{{ route('admin.category.add') }}" class="">
-                        <div class="text">New Category</div>
-                      </a>
-                    </li>
-                    <li class="sub-menu-item">
-                      <a href="{{ route('admin.categories') }}" class="">
-                        <div class="text">Categories</div>
                       </a>
                     </li>
                   </ul>
                 </li>
 
-                {{-- <li class="menu-item has-children">
+                <li class="menu-item has-children">
                   <a href="javascript:void(0);" class="menu-item-button">
                     <div class="icon"><i class="icon-file-plus"></i></div>
                     <div class="text">Order</div>
@@ -135,51 +96,6 @@
                       </a>
                     </li>
                   </ul>
-                </li> --}}
-
-                {{-- adress --}}
-                <li class="menu-item has-children">
-                  <a href="javascript:void(0);" class="menu-item-button">
-                    <div class="icon"><i class="icon-map"></i></div>
-                    <div class="text">Address</div>
-                  </a>
-                  <ul class="sub-menu">
-                    <li class="sub-menu-item">
-                      <a href="{{ route('admin.address.add') }}" class="">
-                        <div class="text">New Addres</div>
-                      </a>
-                    </li>
-                    <li class="sub-menu-item">
-                      <a href="{{ route('admin.address') }}" class="">
-                        <div class="text">Address</div>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-
-                <li class="menu-item">
-                  <a href="#" class="">
-                    <div class="icon">
-                      <i class="icon-user"></i>
-                    </div>
-                    <div class="text">Users</div>
-                  </a>
-                </li>
-
-                <li class="menu-item">
-                  <a href="{{ route('admin.stores') }}" class="">
-                    <div class="icon">
-                      <i class="icon-shopping-bag"></i>
-                    </div>
-                    <div class="text">Stores</div>
-                  </a>
-                </li>
-
-                <li class="menu-item">
-                  <a href="{{ route('admin.slides') }}" class="">
-                    <div class="icon"><i class="icon-image"></i></div>
-                    <div class="text">Slides</div>
-                  </a>
                 </li>
 
                 <li class="menu-item">
@@ -188,6 +104,7 @@
                     <div class="text">Coupns</div>
                   </a>
                 </li>
+
 
                 <li class="menu-item mt-5">
                   <form method="POST" action="{{ route('logout') }}" id="logout-form">
@@ -203,7 +120,6 @@
 
               </ul>
             </div>
-
           </div>
         </div>
         <div class="section-content-right">
@@ -249,7 +165,7 @@
                         </span>
                         <span class="flex flex-column">
                           <span class="body-title mb-2">{{ Auth::user()->name }}</span>
-                          <span class="text-tiny">{{ Auth::user()->role ?? 'Admin' }}</span>
+                          <span class="text-tiny">{{ Auth::user()->store->name ?? '' }}</span>
                         </span>
                       </span>
                     </button>
@@ -272,6 +188,7 @@
                           </button>
                         </form>
                       </li>
+
 
                     </ul>
                   </div>

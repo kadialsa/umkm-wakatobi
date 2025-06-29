@@ -4,7 +4,7 @@
   <div class="main-content-inner">
     <div class="main-content-wrap">
       <div class="flex items-center flex-wrap justify-between gap20 mb-27">
-        <h3>Categories</h3>
+        <h3>Stores</h3>
         <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
           <li>
             <a href="{{ route('admin.index') }}">
@@ -15,7 +15,7 @@
             <i class="icon-chevron-right"></i>
           </li>
           <li>
-            <div class="text-tiny">Categories</div>
+            <div class="text-tiny">Stores</div>
           </li>
         </ul>
       </div>
@@ -33,10 +33,9 @@
               </div>
             </form>
           </div>
-          <a class="tf-button style-1 w208" href="{{ route('admin.category.add') }}"><i class="icon-plus"></i>Add
+          <a class="tf-button style-1 w208" href="{{ route('admin.store.add') }}"><i class="icon-plus"></i>Add
             new</a>
         </div>
-
 
         <div class="wg-table table-all-user">
           @if (Session::has('status'))
@@ -51,33 +50,33 @@
                   <th>No.</th>
                   <th>Name</th>
                   <th>Slug</th>
-                  <th>Products</th>
+                  <th>Description</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                @foreach ($categories as $category)
+                @foreach ($stores as $store)
                   <tr>
-                    <td>{{ $loop->iteration }}</td> {{-- Ini akan menampilkan angka berurut mulai dari 1 --}}
+                    <td>{{ $store->id }}</td>
                     <td class="pname">
                       <div class="image">
-                        <img src="{{ asset('uploads/categories') }}/{{ $category->image }}" alt="{{ $category->name }}"
+                        <img src="{{ asset('uploads/stores') }}/{{ $store->image }}" alt="{{ $store->name }}"
                           class="image">
                       </div>
                       <div class="name">
-                        <a href="#" class="body-title-2">{{ $category->name }}</a>
+                        <a href="#" class="body-title-2">{{ $store->name }}</a>
                       </div>
                     </td>
-                    <td>{{ $category->slug }}</td>
-                    <td><a href="#" target="_blank">0</a></td>
+                    <td>{{ $store->slug }}</td>
+                    <td>{{ $store->description }}</td>
                     <td>
                       <div class="list-icon-function">
-                        <a href="{{ route('admin.category.edit', ['id' => $category->id]) }}">
+                        <a href="{{ route('admin.store.edit', ['id' => $store->id]) }}">
                           <div class="item edit">
                             <i class="icon-edit-3"></i>
                           </div>
                         </a>
-                        <form action="{{ route('admin.category.delete', ['id' => $category->id]) }}" method="POST">
+                        <form action="{{ route('admin.store.delete', ['id' => $store->id]) }}" method="POST">
                           @csrf
                           @method('DELETE')
                           <button type="submit" class="item text-danger delete" style="border:none; background:none;">
@@ -88,13 +87,12 @@
                     </td>
                   </tr>
                 @endforeach
-
               </tbody>
             </table>
           </div>
           <div class="divider"></div>
           <div class="flex items-center justify-between flex-wrap gap10 wgp-pagination">
-            {{ $categories->links('pagination::bootstrap-5') }}
+            {{ $stores->links('pagination::bootstrap-5') }}
           </div>
         </div>
       </div>

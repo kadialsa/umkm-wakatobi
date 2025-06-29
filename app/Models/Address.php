@@ -19,7 +19,8 @@ class Address extends Model
         'city',
         'address',
         'locality',
-        'landmark'
+        'landmark',
+        'country',
     ];
 
     public function user()

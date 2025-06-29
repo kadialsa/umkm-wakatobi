@@ -18,10 +18,16 @@ return new class extends Migration
             $table->string('mobile')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('utype')->default('USR')->comment('ADM for Admin and USR for User or Costomer');
+
+            // ubah jadi enum ADM, STR, USR
+            $table->enum('utype', ['ADM', 'STR', 'USR'])
+                ->default('USR')
+                ->comment('ADM=Super Admin, STR=Store Owner, USR=Customer');
+
             $table->rememberToken();
             $table->timestamps();
         });
+
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
@@ -36,7 +42,7 @@ return new class extends Migration
             $table->text('user_agent')->nullable();
             $table->longText('payload');
             $table->integer('last_activity')->index();
-        }); 
+        });
     }
 
     /**

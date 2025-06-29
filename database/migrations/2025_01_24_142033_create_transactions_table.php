@@ -13,13 +13,34 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id')->unsigned();
-            $table->bigInteger('order_id')->unsigned();
-            $table->enum('mode',['cod','card','paypal']);
-            $table->enum('status',['pending','approved','declined','refunded'])->default('pending');
+
+            // referensi ke order (yang sudah punya store_id & user_id)
+            $table->unsignedBigInteger('order_id');
+
+            // metode pembayaran umum di Indonesia
+            $table->enum('mode', [
+                'cod',
+                'bank_transfer',
+                'gopay',
+                'ovo',
+                'dana',
+                'shopeepay',
+            ])->default('bank_transfer');
+
+            // status transaksi
+            $table->enum('status', [
+                'pending',
+                'approved',
+                'declined',
+                'refunded',
+            ])->default('pending');
+
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
+
+            // foreign key
+            $table->foreign('order_id')
+                ->references('id')->on('orders')
+                ->onDelete('cascade');
         });
     }
 

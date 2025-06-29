@@ -2,16 +2,48 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Faker\Factory as FakerFactory;
+use App\Models\Category;
 
 class CategorySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        //
+        // Matikan cek FK agar truncate berhasil
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Category::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        $faker = FakerFactory::create();
+
+        $parents = [
+            'Makanan'   => ['Makanan Ringan', 'Makanan Berat'],
+            'Minuman'   => ['Kopi', 'Teh', 'Jus'],
+            'Kerajinan' => ['Anyaman', 'Kayu', 'Keramik'],
+            'Pakaian'   => ['Batik', 'Kaos', 'Kemeja'],
+            'Aksesori'  => ['Perhiasan', 'Tas', 'Topi'],
+            'Elektronik' => ['Gadget', 'Aksesoris Elektronik'],
+        ];
+
+        foreach ($parents as $parentName => $children) {
+            $parent = Category::create([
+                'name'      => $parentName,
+                'slug'      => Str::slug($parentName),
+                'image'     => $faker->imageUrl(640, 480, 'food'), // adjust category keyword as needed
+                'parent_id' => null,
+            ]);
+
+            foreach ($children as $childName) {
+                Category::create([
+                    'name'      => $childName,
+                    'slug'      => Str::slug($parentName . ' ' . $childName),
+                    'image'     => $faker->imageUrl(640, 480, 'product'),
+                    'parent_id' => $parent->id,
+                ]);
+            }
+        }
     }
 }

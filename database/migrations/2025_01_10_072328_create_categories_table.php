@@ -13,11 +13,22 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
+
+            // nama & slug unik global
             $table->string('name');
             $table->string('slug')->unique();
+
+            // gambar opsional
             $table->string('image')->nullable();
-            $table->string('parent_id')->nullable();
+
+            // self-reference untuk parent/child
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamps();
+
+            // foreign key ke diri sendiri
+            $table->foreign('parent_id')
+                ->references('id')->on('categories')
+                ->onDelete('cascade');
         });
     }
 

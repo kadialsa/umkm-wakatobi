@@ -18,7 +18,10 @@ use App\Models\OrderItem;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use App\Models\Address;
+use App\Models\Store;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -58,8 +61,18 @@ class AdminController extends Controller
         $TotalDeliveredAmount = collect($monthlyDatas)->sum('TotalDeliveredAmount');
         $TotalCanceledAmount = collect($monthlyDatas)->sum('TotalCanceledAmount');
 
-        return view('admin.index', compact('orders','dashboardDatas', 'AmountM','OrderedAmountM','DeliveredAmountM','CanceledAmountM',
-                                            'TotalAmount','TotalOrderedAmount','TotalDeliveredAmount','TotalCanceledAmount'));
+        return view('admin.index', compact(
+            'orders',
+            'dashboardDatas',
+            'AmountM',
+            'OrderedAmountM',
+            'DeliveredAmountM',
+            'CanceledAmountM',
+            'TotalAmount',
+            'TotalOrderedAmount',
+            'TotalDeliveredAmount',
+            'TotalCanceledAmount'
+        ));
     }
 
     public function brands()
@@ -466,7 +479,7 @@ class AdminController extends Controller
 
     public function coupons()
     {
-        $coupons = Coupon::orderBy('expiry_date','DESC')->paginate(12);
+        $coupons = Coupon::orderBy('expiry_date', 'DESC')->paginate(12);
         return view('admin.coupons', compact('coupons'));
     }
     public function coupon_add()
@@ -527,47 +540,42 @@ class AdminController extends Controller
 
     public function orders()
     {
-        $orders = Order::orderBy('created_at','DESC')->paginate(12);
+        $orders = Order::orderBy('created_at', 'DESC')->paginate(12);
         return view('admin.orders', compact('orders'));
     }
 
     public function order_details($order_id)
     {
         $order = Order::find($order_id);
-        $orderItems = OrderItem::where('order_id',$order_id)->orderBy('id')->paginate(12);
-        $transaction = Transaction::where('order_id',$order_id)->first();
-        return view('admin.order-details', compact('order','orderItems','transaction'));
+        $orderItems = OrderItem::where('order_id', $order_id)->orderBy('id')->paginate(12);
+        $transaction = Transaction::where('order_id', $order_id)->first();
+        return view('admin.order-details', compact('order', 'orderItems', 'transaction'));
     }
 
     public function update_order_status(Request $request)
     {
         $order = Order::find($request->order_id);
         $order->status = $request->order_status;
-        if($request->order_status == 'delivered')
-        {
+        if ($request->order_status == 'delivered') {
             $order->delivered_date = Carbon::now();
-        }
-        else if($request->order_status == 'canceled')
-        {
+        } else if ($request->order_status == 'canceled') {
             $order->canceled_date = Carbon::now();
         }
         $order->save();
 
-        if($request->order_status == 'delivered')
-        {
-            $transaction = Transaction::where('order_id',$request->order_id)->first();
+        if ($request->order_status == 'delivered') {
+            $transaction = Transaction::where('order_id', $request->order_id)->first();
             $transaction->status = 'approved';
             $transaction->save();
         }
-        return back()->with("status","Status changed successfily!");
-
+        return back()->with("status", "Status changed successfily!");
     }
 
     // sliders
     public function slides()
     {
-        $slides = Slide::orderBy('id','DESC')->paginate(12);
-        return view ('admin.slides', compact('slides'));
+        $slides = Slide::orderBy('id', 'DESC')->paginate(12);
+        return view('admin.slides', compact('slides'));
     }
 
     public function slide_add()
@@ -585,6 +593,7 @@ class AdminController extends Controller
             'status' => 'required',
             'image' => 'required|mimes:png,jpg,jpeg|max:2048'
         ]);
+
         $slide = new Slide();
         $slide->tagline = $request->tagline;
         $slide->title = $request->title;
@@ -592,14 +601,22 @@ class AdminController extends Controller
         $slide->link = $request->link;
         $slide->status = $request->status;
 
-        $image = $request->file('image');
-        $file_extention = $request->file('image')->extension();
-        $file_name = Carbon::now()->timestamp . '.' . $file_extention;
-        $this->GenerateSlideThumbailsImage($image, $file_name);
-        $slide->image = $file_name;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $file_extention = $image->extension();
+            $file_name = Carbon::now()->timestamp . '.' . $file_extention;
+
+            // Simpan langsung ke folder uploads/slides tanpa resize
+            $image->move(public_path('uploads/slides'), $file_name);
+
+            $slide->image = $file_name;
+        }
+
         $slide->save();
-        return redirect()->route('admin.slides')->with("status","Slide added successfully!");
+
+        return redirect()->route('admin.slides')->with("status", "Slide added successfully!");
     }
+
 
     public function GenerateSlideThumbailsImage($image, $imageName)
     {
@@ -614,7 +631,7 @@ class AdminController extends Controller
     public function slide_edit($id)
     {
         $slide = Slide::find($id);
-        return view('admin.slide-edit',compact('slide'));
+        return view('admin.slide-edit', compact('slide'));
     }
 
     public function slide_update(Request $request)
@@ -634,11 +651,9 @@ class AdminController extends Controller
         $slide->link = $request->link;
         $slide->status = $request->status;
 
-        if($request->hasFile('image'))
-        {
-            if(File::exists(public_path('uploads/slides').'/'.$slide->image))
-            {
-                File::delete(public_path('uploads/slides').'/'.$slide->image);
+        if ($request->hasFile('image')) {
+            if (File::exists(public_path('uploads/slides') . '/' . $slide->image)) {
+                File::delete(public_path('uploads/slides') . '/' . $slide->image);
             }
             $image = $request->file('image');
             $file_extention = $request->file('image')->extension();
@@ -647,26 +662,24 @@ class AdminController extends Controller
             $slide->image = $file_name;
         }
         $slide->save();
-        return redirect()->route('admin.slides')->with("status","Slide updated successfully!");
+        return redirect()->route('admin.slides')->with("status", "Slide updated successfully!");
     }
 
     public function slide_delete($id)
     {
         $slide = Slide::find($id);
-        if(File::exists(public_path('uploads/slides').'/'.$slide->image))
-        {
-            File::delete(public_path('uploads/slides').'/'.$slide->image);
+        if (File::exists(public_path('uploads/slides') . '/' . $slide->image)) {
+            File::delete(public_path('uploads/slides') . '/' . $slide->image);
         }
         $slide->delete();
-        return redirect()->route('admin.slides')->with("status","Slide deleted successfully!");
+        return redirect()->route('admin.slides')->with("status", "Slide deleted successfully!");
     }
 
     // Contact
     public function contacts()
     {
-        $contacts = Contact::orderBy('created_at','DESC')->paginate(10);
+        $contacts = Contact::orderBy('created_at', 'DESC')->paginate(10);
         return view('admin.contacts', compact('contacts'));
-
     }
 
     public function contact_delete($id)
@@ -674,13 +687,12 @@ class AdminController extends Controller
         $contact = Contact::find($id);
         $contact->delete();
         return redirect()->route('admin.contacts')->with("status", "Contact deleted successfully!");
-
     }
 
     public function search(Request $request)
     {
         $query = $request->input('query');
-        $results = Product::where('name','LIKE',"%($query)%")->get()->take(8);
+        $results = Product::where('name', 'LIKE', "%($query)%")->get()->take(8);
         return response()->json($results);
     }
 
@@ -688,7 +700,7 @@ class AdminController extends Controller
 
     public function address()
     {
-            // Ambil ID admin yang sedang login
+        // Ambil ID admin yang sedang login
         $adminId = Auth::id(); // atau Auth::user()->id
 
         // Ambil alamat yang hanya dimiliki oleh admin yang sedang login
@@ -704,7 +716,7 @@ class AdminController extends Controller
         return view('admin.address-add');
     }
 
-        public function addres_store(Request $request)
+    public function addres_store(Request $request)
     {
         $request->validate([
             'name' => 'required',
@@ -734,7 +746,7 @@ class AdminController extends Controller
         return redirect()->route('admin.address')->with('success', 'Address added successfully.');
     }
 
-     public function address_edit($id)
+    public function address_edit($id)
     {
         $address = Address::findOrFail($id);
         return view('admin.address-edit', compact('address'));
@@ -774,4 +786,166 @@ class AdminController extends Controller
         return redirect()->route('admin.address')->with('success', 'Address deleted successfully.');
     }
 
+    public function stores()
+    {
+        $stores = Store::orderBy('created_at', 'DESC')->paginate(12);
+        return view('admin.stores', compact('stores'));
+    }
+
+    public function store_add()
+    {
+        return view('admin.store-add');
+    }
+
+    public function store_store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'slug' => 'required|unique:stores,slug',
+            'image' => 'nullable|mimes:jpg,jpeg,png|max:2048',
+            'description' => 'nullable',
+
+            'owner_name' => 'required|string|max:255',
+            'owner_email' => 'required|email|unique:users,email',
+            'owner_mobile' => 'required|string|unique:users,mobile',
+            'owner_password' => 'required|string|min:6',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Simpan User
+            $user = new User();
+            $user->name = $request->owner_name;
+            $user->email = $request->owner_email;
+            $user->mobile = $request->owner_mobile;
+            $user->password = Hash::make($request->owner_password);
+            $user->utype = 'STR';
+            $user->save();
+
+            // Simpan Store
+            $store = new Store();
+            $store->name = $request->name;
+            $store->slug = Str::slug($request->slug);
+            $store->description = $request->description;
+            $store->owner_id = $user->id;
+
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $file_extention = $image->extension();
+                $file_name = Carbon::now()->timestamp . '.' . $file_extention;
+                $this->GenerateStoreThumbnailImage($image, $file_name);
+                $store->image = $file_name;
+            }
+
+            $store->save();
+
+            DB::commit();
+            return redirect()->route('admin.stores')->with('status', 'Store and owner added successfully!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Something went wrong: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function store_edit($id)
+    {
+        $store = Store::findOrFail($id);
+        $owner = $store->owner; // assuming Store has relation: owner()
+
+        return view('admin.store-edit', compact('store', 'owner'));
+    }
+
+    public function store_update(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:stores,id',
+            'name' => 'required',
+            'slug' => 'required|unique:stores,slug,' . $request->id,
+            'image' => 'nullable|mimes:jpg,jpeg,png|max:2048',
+            'description' => 'nullable',
+
+            'owner_name' => 'required|string|max:255',
+            'owner_email' => 'required|email|unique:users,email,' . $request->owner_id,
+            'owner_mobile' => 'required|string|unique:users,mobile,' . $request->owner_id,
+            'owner_password' => 'nullable|string|min:6',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $store = Store::findOrFail($request->id);
+            $store->name = $request->name;
+            $store->slug = Str::slug($request->slug);
+            $store->description = $request->description;
+
+            // Update Image
+            if ($request->hasFile('image')) {
+                if ($store->image && File::exists(public_path('uploads/stores/' . $store->image))) {
+                    File::delete(public_path('uploads/stores/' . $store->image));
+                }
+
+                $image = $request->file('image');
+                $file_extention = $image->extension();
+                $file_name = Carbon::now()->timestamp . '.' . $file_extention;
+                $this->GenerateStoreThumbnailImage($image, $file_name);
+                $store->image = $file_name;
+            }
+
+            $store->save();
+
+            // Update Owner
+            $owner = User::findOrFail($store->owner_id);
+            $owner->name = $request->owner_name;
+            $owner->email = $request->owner_email;
+            $owner->mobile = $request->owner_mobile;
+            if ($request->owner_password) {
+                $owner->password = Hash::make($request->owner_password);
+            }
+            $owner->save();
+
+            DB::commit();
+            return redirect()->route('admin.stores')->with('status', 'Store and owner updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Something went wrong: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function store_delete($id)
+    {
+        DB::beginTransaction();
+        try {
+            $store = Store::findOrFail($id);
+
+            if ($store->image && File::exists(public_path('uploads/stores/' . $store->image))) {
+                File::delete(public_path('uploads/stores/' . $store->image));
+            }
+
+            $owner = $store->owner;
+            $store->delete();
+
+            if ($owner && $owner->utype === 'STR') {
+                $owner->delete(); // Optional: only delete if utype STR
+            }
+
+            DB::commit();
+            return redirect()->route('admin.stores')->with('status', 'Store and owner deleted successfully!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Failed to delete store: ' . $e->getMessage());
+        }
+    }
+
+    public function GenerateStoreThumbnailImage($image, $imageName)
+    {
+        $destinationPath = public_path('uploads/stores');
+        if (!File::exists($destinationPath)) {
+            File::makeDirectory($destinationPath, 0755, true);
+        }
+
+        $img = Image::read($image->path());
+        $img->cover(124, 124, "top");
+        $img->resize(124, 124, function ($constraint) {
+            $constraint->aspectRatio();
+        })->save($destinationPath . '/' . $imageName);
+    }
 }
