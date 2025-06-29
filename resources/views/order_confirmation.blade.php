@@ -5,6 +5,7 @@
     <section class="shop-checkout container">
       <h2 class="page-title">Pesanan Diterima</h2>
 
+      {{-- Langkah checkout --}}
       <div class="checkout-steps mb-4">
         <a class="checkout-steps__item active">
           <span class="checkout-steps__item-number">01</span>
@@ -36,8 +37,28 @@
                 <h5 class="mb-1">#{{ $order->id }}</h5>
                 <small class="text-muted">{{ $order->created_at->format('d M Y, H:i') }}</small>
               </div>
-              <span class="badge bg-dark">Selesai</span>
+
+              @php
+                // Ambil semua transaction_status dari order_payments, dan ambil yang terakhir
+                $statuses = $order->payments->pluck('transaction_status');
+                $latestStatus = $statuses->last() ?? 'unpaid';
+
+                // Mapping ke label + badge class
+                if (in_array($latestStatus, ['capture', 'settlement'])) {
+                    $label = 'Lunas';
+                    $badge = 'bg-success';
+                } elseif ($latestStatus === 'pending') {
+                    $label = 'Menunggu';
+                    $badge = 'bg-warning text-dark';
+                } else {
+                    $label = 'Belum Dibayar';
+                    $badge = 'bg-secondary';
+                }
+              @endphp
+
+              <span class="badge {{ $badge }}">{{ $label }}</span>
             </div>
+
 
             {{-- Penjual --}}
             <div class="mb-3 small text-secondary">
@@ -54,7 +75,9 @@
                     {{ $item->product->name }}<br>
                     <small class="text-muted">x{{ $item->quantity }}</small>
                   </div>
-                  <div class="fw-bold">@rupiahSymbol($item->price * $item->quantity)</div>
+                  <div class="fw-bold">
+                    @rupiahSymbol($item->price * $item->quantity)
+                  </div>
                 </li>
               @endforeach
             </ul>
@@ -79,10 +102,26 @@
               </div>
             </div>
 
-            {{-- Tombol detail --}}
-            <a href="{{ route('user.orders') }}" class="btn btn-dark w-100 mt-3">
-              Lihat Detail Pesanan
-            </a>
+            @php
+              // Ambil status transaksi terbaru, default 'unpaid' kalau belum ada
+              $latestStatus = $order->payments->pluck('transaction_status')->last() ?? 'unpaid';
+            @endphp
+
+            {{-- Tombol Bayar atau Lihat Detail --}}
+            @if (in_array($latestStatus, ['capture', 'settlement']))
+              {{-- Sudah lunas --}}
+              <a href="#" class="btn btn-dark w-100 mt-3">
+                Lihat Detail Pesanan
+              </a>
+            @else
+              {{-- Belum dibayar / pending --}}
+              <button type="button" class="btn btn-success w-100 pay-button mt-3"
+                data-token="{{ session('snap_tokens')[$order->id] }}"
+                aria-label="Bayar pesanan {{ $order->id }} ke {{ $order->store->name }}">
+                Bayar ke {{ $order->store->name }} &mdash; @rupiahSymbol($order->total)
+              </button>
+            @endif
+
 
           </div>
         </div>
@@ -90,4 +129,54 @@
 
     </section>
   </main>
+
+  {{-- Midtrans Snap JS --}}
+  <script src="https://{{ config('midtrans.is_production') ? 'app' : 'app.sandbox' }}.midtrans.com/snap/snap.js"
+    data-client-key="{{ config('midtrans.client_key') }}"></script>
+
+  {{-- Tombol ganti metode --}}
+  <button id="change-method" class="btn btn-link d-none">
+    Ganti Metode Pembayaran
+  </button>
+
+  <script>
+    let lastToken = null;
+
+    const snapOptions = {
+      onSuccess: res => handleMidtrans(res),
+      onPending: res => handleMidtrans(res),
+      onError: res => handleMidtrans(res),
+      onClose: () => {
+        // munculkan tombol ganti ketika modal ditutup
+        document.getElementById('change-method').classList.remove('d-none');
+      }
+    };
+
+    document.querySelectorAll('.pay-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        lastToken = btn.dataset.token;
+        document.getElementById('change-method').classList.add('d-none');
+        snap.pay(lastToken, snapOptions);
+      });
+    });
+
+    document.getElementById('change-method').addEventListener('click', () => {
+      // sembunyikan modal yang sedang aktif
+      snap.hide();
+      // buka ulang Snap dengan daftar metode pembayaran
+      snap.pay(lastToken, snapOptions);
+      document.getElementById('change-method').classList.add('d-none');
+    });
+
+    function handleMidtrans(result) {
+      fetch("{{ route('midtrans.notification') }}", {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': '{{ csrf_token() }}',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(result)
+      }).then(() => location.reload());
+    }
+  </script>
 @endsection

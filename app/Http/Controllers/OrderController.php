@@ -13,7 +13,14 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
+        $orders = Order::with(['store', 'orderItems', 'paymentHistory'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+
+        return dd($orders);
+
+        // return view('admin.orders.index', compact('orders'));
     }
 
     /**

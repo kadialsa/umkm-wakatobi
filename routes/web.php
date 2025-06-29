@@ -6,6 +6,8 @@ use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MidtransController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\Store\ProductController;
 use App\Http\Controllers\Store\StoreController;
@@ -65,6 +67,10 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/account/address/{id}', [AddressController::class, 'update'])->name('user.address.update');
 
     Route::delete('/account/address/{id}', [AddressController::class, 'destroy'])->name('user.address.destroy');
+
+    // MIDTRANS
+    Route::post('midtrans/notification', [MidtransController::class, 'notificationHandler'])
+        ->name('midtrans.notification');
 });
 
 // Store
@@ -166,4 +172,7 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::put('/admin/address/{id}', [AdminController::class, 'address_update'])->name('admin.address.update');
 
     Route::delete('/admin/address/{id}', [AdminController::class, 'address_destroy'])->name('admin.address.delete');
+
+    // MIDTRANS
+    Route::get('admin/orders', [OrderController::class, 'index']);
 });

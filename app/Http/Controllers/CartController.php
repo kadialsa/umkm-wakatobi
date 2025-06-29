@@ -12,6 +12,7 @@ use Illuminate\Container\Attributes\Auth as AttributesAuth;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Surfsidemedia\Shoppingcart\Facades\Cart;
+use Illuminate\Support\Facades\Log;
 // midtrans
 
 use Illuminate\Http\Request;
@@ -209,8 +210,9 @@ class CartController extends Controller
 
     public function place_an_order(Request $request)
     {
-        $userId    = Auth::id();
-        $orderIds  = [];
+        $userId     = Auth::id();
+        $orderIds   = [];
+        $snapTokens = [];
 
         // 1) Tentukan alamat
         if ($request->filled('address_id')) {
@@ -233,7 +235,7 @@ class CartController extends Controller
             $address = Address::create($validated);
         }
 
-        // 2) Buat order per toko
+        // 2) Buat Order per toko
         $groups = Cart::instance('cart')
             ->content()
             ->groupBy(fn($i) => $i->model->store_id);
@@ -251,7 +253,6 @@ class CartController extends Controller
                 'discount'  => 0,
                 'tax'       => $tax,
                 'total'     => $total,
-                // alamat
                 'name'      => $address->name,
                 'phone'     => $address->phone,
                 'locality'  => $address->locality,
@@ -263,7 +264,6 @@ class CartController extends Controller
                 'zip'       => $address->zip,
             ]);
 
-            // simpan item
             foreach ($items as $item) {
                 OrderItem::create([
                     'order_id'   => $order->id,
@@ -273,7 +273,6 @@ class CartController extends Controller
                 ]);
             }
 
-            // transaksi COD
             if ($request->mode === 'cod') {
                 Transaction::create([
                     'user_id'  => $userId,
@@ -285,15 +284,48 @@ class CartController extends Controller
             $orderIds[] = $order->id;
         }
 
-        // 3) Bersihkan cart & session lama, simpan order_ids baru
+        // 3) Konfigurasi Midtrans
+        Config::$serverKey    = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized  = config('midtrans.is_sanitized');
+        Config::$is3ds        = config('midtrans.is_3ds');
+
+        // 4) Generate Snap Token untuk tiap order dengan expiry 1 jam
+        foreach ($orderIds as $id) {
+            $order = Order::findOrFail($id);
+            $params = [
+                'transaction_details' => [
+                    'order_id'     => 'STORE' . $order->store_id . '_' . $order->id,
+                    'gross_amount' => (int) $order->total,
+                ],
+                'customer_details' => [
+                    'first_name' => $request->user()->name,
+                    'email'      => $request->user()->email,
+                    'phone'      => $order->phone,
+                ],
+                'expiry' => [
+                    // Mulai sekarang, durasi 1 jam
+                    'start_time' => Carbon::now()->format('Y-m-d H:i:s O'),
+                    'unit'       => 'hour',
+                    'duration'   => 1,
+                ],
+            ];
+
+            Log::info("Generating Snap Token for Order {$order->id}", $params);
+
+            $snapTokens[$order->id] = Snap::getSnapToken($params);
+        }
+
+        // 5) Simpan untuk view konfirmasi
+        Session::put('order_ids',   $orderIds);
+        Session::put('snap_tokens', $snapTokens);
+
+        // 6) Bersihkan cart & session lama lainnya
         Cart::instance('cart')->destroy();
         Session::forget(['checkout', 'coupon', 'discounts']);
-        Session::put('order_ids', $orderIds);
 
         return redirect()->route('cart.order.comfirmation');
     }
-
-
 
 
     // public function setAmountforCheckout()
