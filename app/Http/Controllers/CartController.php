@@ -123,8 +123,8 @@ class CartController extends Controller
 
         // dd(Auth::user()->id);
 
-        // $address = Address::where('user_id', Auth::user()->id)->where('isdefault', 1)->first();
-        $address = Address::where('user_id', Auth::user()->id)->where('isdefault', 0)->first();
+        $address = Address::where('user_id', Auth::user()->id)->where('isdefault', 1)->first();
+        // $address = Address::where('user_id', Auth::user()->id)->where('isdefault', 0)->first();
 
         return view('checkout', compact('address'));
     }

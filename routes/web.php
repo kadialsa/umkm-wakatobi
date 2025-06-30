@@ -6,6 +6,7 @@ use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ShopController;
@@ -47,6 +48,18 @@ Route::get('/contact-us', [HomeController::class, 'contact'])->name('home.contac
 Route::post('/contact/store', [HomeController::class, 'contact_store'])->name('home.contact.store');
 
 Route::get('/search', [HomeController::class, 'search'])->name('home.search');
+
+// Test Location
+// Pencarian kel/desa
+Route::get('/komship/search-address', [LocationController::class, 'searchAddress']);
+// Hitung ongkir
+Route::get('/komship/calculate-cost',  [LocationController::class, 'calculateCost']);
+
+// Cek demo
+Route::get('/komship/demo', [LocationController::class, 'demo']);
+
+
+
 
 
 // user

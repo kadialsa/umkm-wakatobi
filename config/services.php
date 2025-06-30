@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    'rajaongkir' => [
+        'key'          => env('RAJAONGKIR_API_KEY', ''),
+        'account_type' => env('RAJAONGKIR_ACCOUNT_TYPE', 'starter'),
+    ],
+
+    'komship' => [
+        'base_url' => env('KOMSHIP_BASE_URL'),
+        'api_key'  => env('KOMSHIP_API_KEY'),
+        'origin_city_id'   => env('KOMSHIP_ORIGIN_CITY_ID'),
+    ],
+
+
 ];

@@ -252,7 +252,7 @@
               <form action="{{ route('cart.empty') }}" method="POST">
                 @csrf
                 @method('DELETE')
-                <button class="btn btn-light" type="submit">Kosongkan Keranjang</button>
+                <button class="btn btn-light" type="submit">Kosongkan</button>
               </form>
             </div>
             <div>
