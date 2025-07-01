@@ -188,8 +188,7 @@
                         <div class="shopping-cart__product-item__detail">
                           <h4>{{ $item->name }}</h4>
                           <ul class="shopping-cart__product-item__options">
-                            <li>Warna: Kuning</li>
-                            <li>Ukuran: L</li>
+                            <li>Kategori : {{ $item->model->category->name }}</li>
                           </ul>
                         </div>
                       </td>
@@ -233,7 +232,9 @@
             </table>
 
             <div class="cart-table-footer">
-              @if (!Session::has('coupon'))
+
+              {{-- Kupon --}}
+              {{-- @if (!Session::has('coupon'))
                 <form action="{{ route('cart.coupon.apply') }}" method="POST" class="position-relative bg-body">
                   @csrf
                   <input class="form-control" type="text" name="coupon_code" placeholder="Kode Kupon">
@@ -249,7 +250,9 @@
                   <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4" type="submit"
                     value="Hapus Kupon">
                 </form>
-              @endif
+              @endif --}}
+              {{-- End Kupon --}}
+
 
               <form action="{{ route('cart.empty') }}" method="POST">
                 @csrf

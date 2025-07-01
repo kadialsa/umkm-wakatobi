@@ -81,9 +81,12 @@
             <ul class="list-unstyled mb-3">
               @foreach ($order->orderItems as $item)
                 <li class="d-flex align-items-center mb-2">
+
+                  {{-- @dd($item->product->image) --}}
+
                   <img loading="lazy"
                     src="{{ $item->product->image
-                        ? asset('storage/' . $item->product->image)
+                        ? asset('uploads/products/' . $item->product->image)
                         : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
                     alt="{{ $item->product->name ?? 'No Image' }}" class="rounded me-3"
                     style="width:48px;height:48px;object-fit:cover;">
