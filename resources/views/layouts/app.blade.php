@@ -323,7 +323,11 @@
               <a href="{{ route('cart.index') }}" class="navigation__link">KERANJANG</a>
             </li>
             <li class="navigation__item">
-              <a href="about.html" class="navigation__link">INFO TENTANG</a>
+              <a href="#" class="navigation__link">INFO TENTANG</a>
+            </li>
+
+            <li class="navigation__item">
+              <a href="#" class="navigation__link">BERITA</a>
             </li>
             {{-- <li class="navigation__item">
                             <a href="contact.html" class="navigation__link">Contact</a>
@@ -410,7 +414,10 @@
               <a href="{{ route('cart.index') }}" class="navigation__link">KERANJANG</a>
             </li>
             <li class="navigation__item">
-              <a href="about.html" class="navigation__link">INFO TENTANG</a>
+              <a href="#" class="navigation__link">INFO TENTANG</a>
+            </li>
+            <li class="navigation__item">
+              <a href="about.html" class="navigation__link">BERITA</a>
             </li>
             {{-- <li class="navigation__item">
                             <a href={{ route('home.contact') }} class="navigation__link">Contact</a>

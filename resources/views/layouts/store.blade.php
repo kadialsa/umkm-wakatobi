@@ -92,20 +92,16 @@
                         <div class="text">Orders</div>
                       </a>
                     </li>
-                    <li class="sub-menu-item">
-                      <a href="order-tracking.html" class="">
-                        <div class="text">Order tracking</div>
-                      </a>
-                    </li>
+
                   </ul>
                 </li>
 
-                <li class="menu-item">
+                {{-- <li class="menu-item">
                   <a href="{{ route('admin.coupons') }}" class="">
                     <div class="icon"><i class="icon-grid"></i></div>
                     <div class="text">Coupns</div>
                   </a>
-                </li>
+                </li> --}}
 
 
                 <li class="menu-item mt-5">

@@ -45,10 +45,13 @@ class OrderController extends Controller
             abort(403);
         }
 
-        $order->load(['user', 'orderItems.product']);
+        // Load semua relasi yang diperlukan, termasuk payments
+        // In OrderController@show
+        $order->load(['user', 'orderItems.product', 'payments', 'trackings']);
 
         return view('store.orders.show', compact('order'));
     }
+
 
     protected function guardOrder(Order $order)
     {

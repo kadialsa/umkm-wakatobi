@@ -21,27 +21,29 @@ class StoreSeeder extends Seeder
         Store::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $faker = FakerFactory::create('id_ID');
-
-        // Ambil hanya user dengan utype = 'STR'
+        $faker   = FakerFactory::create('id_ID');
         $userIds = User::where('utype', 'STR')->pluck('id')->toArray();
-        if (empty($userIds)) {
-            $this->command->error('Tidak ada user dengan utype=STR. Pastikan UserSeeder sudah membuat akun store.');
+
+        if (count($userIds) < 10) {
+            $this->command->error('Butuh minimal 10 user dengan utype=STR untuk membuat 10 toko.');
             return;
         }
 
-        // Buat 10 toko, setiap toko wajib punya owner
-        for ($i = 0; $i < 10; $i++) {
+        // Pastikan satu owner hanya sekali
+        shuffle($userIds);
+        $ownerIds = array_slice($userIds, 0, 10);
+
+        foreach ($ownerIds as $ownerId) {
             $name = $faker->unique()->company;
             Store::create([
                 'name'        => $name,
                 'slug'        => Str::slug($name),
                 'image'       => $faker->imageUrl(640, 480, 'business'),
                 'description' => $faker->paragraph(3),
-                'owner_id'    => $faker->randomElement($userIds), // selalu ada owner
+                'owner_id'    => $ownerId,
             ]);
         }
 
-        $this->command->info('Seeded ' . Store::count() . ' stores with STR owners.');
+        $this->command->info('Seeded ' . Store::count() . ' stores with unique STR owners.');
     }
 }

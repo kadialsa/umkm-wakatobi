@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MidtransController;
+use App\Http\Controllers\OrderTrackingController;
 // use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\Store\OrderController;
@@ -109,6 +110,10 @@ Route::middleware(['auth', AuthStore::class])
         Route::post('orders/{order}/deliver',   [OrderController::class, 'deliver'])->name('orders.deliver');
         Route::post('orders/{order}/complete',  [OrderController::class, 'complete'])->name('orders.complete');
         Route::post('orders/{order}/cancel',    [OrderController::class, 'cancel'])->name('orders.cancel');
+
+        // Order Tracking
+        Route::post('orders/{order}/trackings', [OrderTrackingController::class, 'store'])->name('orders.trackings.store');
+        Route::put('orders/{order}/trackings/{tracking}', [OrderTrackingController::class, 'update'])->name('orders.trackings.update');
     });
 
 

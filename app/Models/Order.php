@@ -103,4 +103,9 @@ class Order extends Model
     {
         return $this->hasOne(Transaction::class);
     }
+
+    public function trackings()
+    {
+        return $this->hasMany(OrderTracking::class);
+    }
 }
