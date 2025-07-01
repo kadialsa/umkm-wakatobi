@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +52,11 @@ Route::post('/contact/store', [HomeController::class, 'contact_store'])->name('h
 
 Route::get('/search', [HomeController::class, 'search'])->name('home.search');
 
+// Blog
+Route::get('/articles', [HomeController::class, 'articles'])->name('home.articles');
+Route::get('/articles/{article:slug}', [HomeController::class, 'showArticle'])
+    ->name('home.articles.show');
+
 // Test Location
 // Pencarian kel/desa
 Route::get('/komship/search-address', [LocationController::class, 'searchAddress']);
@@ -59,6 +65,8 @@ Route::get('/komship/calculate-cost',  [LocationController::class, 'calculateCos
 
 // Cek demo
 Route::get('/komship/demo', [LocationController::class, 'demo']);
+
+
 
 
 
@@ -183,6 +191,9 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
 
     Route::delete('/admin/address/{id}', [AdminController::class, 'address_destroy'])->name('admin.address.delete');
 
-    // MIDTRANS
+    // MIDTRANS (Check Later)
     Route::get('admin/orders', [OrderController::class, 'index']);
+
+    // BLOG
+    Route::resource('blog', BlogController::class);
 });

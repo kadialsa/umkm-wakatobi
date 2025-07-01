@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Blog;
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\Product;
@@ -99,5 +100,17 @@ class HomeController extends Controller
             'costs',
             'regCost'
         ));
+    }
+
+    public function articles()
+    {
+        $articles = Blog::orderBy('created_at', 'desc')->paginate(10);
+
+        return view('blog', compact('articles'));
+    }
+
+    public function showArticle(Blog $article)
+    {
+        return view('blog-show', compact('article'));
     }
 }

@@ -157,6 +157,29 @@
                   </ul>
                 </li>
 
+
+                {{-- adress --}}
+                <li class="menu-item has-children">
+                  <a href="javascript:void(0);" class="menu-item-button">
+                    <div class="icon">
+                      <i class="icon-grid"></i>
+                    </div>
+                    <div class="text">Blogs</div>
+                  </a>
+                  <ul class="sub-menu">
+                    <li class="sub-menu-item">
+                      <a href="{{ route('blog.create') }}" class="">
+                        <div class="text">New Blog</div>
+                      </a>
+                    </li>
+                    <li class="sub-menu-item">
+                      <a href="{{ route('blog.index') }}" class="">
+                        <div class="text">Blogs</div>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+
                 <li class="menu-item">
                   <a href="#" class="">
                     <div class="icon">
@@ -182,12 +205,12 @@
                   </a>
                 </li>
 
-                <li class="menu-item">
+                {{-- <li class="menu-item">
                   <a href="{{ route('admin.coupons') }}" class="">
                     <div class="icon"><i class="icon-grid"></i></div>
                     <div class="text">Coupns</div>
                   </a>
-                </li>
+                </li> --}}
 
                 <li class="menu-item mt-5">
                   <form method="POST" action="{{ route('logout') }}" id="logout-form">
