@@ -189,7 +189,7 @@
           <div class="flex items-center justify-between">
             <h5>Recent orders</h5>
             <div class="dropdown default">
-              <a class="btn btn-secondary dropdown-toggle" href="{{ route('admin.orders') }}">
+              <a class="btn btn-secondary dropdown-toggle" href="#">
                 <span class="view-all">View all</span>
               </a>
             </div>

@@ -127,57 +127,37 @@
               "clickable": true
             }
           }'>
-          <div class="swiper-wrapper">
-            <div class="swiper-slide">
-              <div class="slide-split h-100 d-block d-md-flex overflow-hidden">
-                <div class="slide-split_text position-relative d-flex align-items-center"
-                  style="background-color: #f5e6e0;">
-                  <div class="slideshow-text container p-3 p-xl-5">
-                    <h2
-                      class="text-uppercase section-title fw-normal mt-5 mb-3 animate animate_fade animate_btt animate_delay-3">
-                      Pelatihan <br /><strong>UMKM Wakatobi</strong>
-                    </h2>
-                    <p class="mb-0 animate animate_fade animate_btt animate_delay-6">
-                      Pelatihan ini dirancang untuk para pelaku UMKM di Wakatobi agar mampu meningkatkan daya saing produk
-                      melalui strategi pemasaran digital yang efektif dan inovasi produk yang sesuai dengan kebutuhan
-                      pasar.
-                    </p>
-                  </div>
-                </div>
-                <div class="slide-split_media position-relative">
-                  <div class="slideshow-bg" style="background-color: #f5e6e0;">
-                    <img loading="lazy" src="assets/images/shop/petaihanUMKM.jpg" width="630" height="450"
-                      alt="Women's accessories" class="slideshow-bg__img object-fit-cover" />
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <div class="swiper-slide">
-              <div class="slide-split h-100 d-block d-md-flex overflow-hidden">
-                <div class="slide-split_text position-relative d-flex align-items-center"
-                  style="background-color: #f5e6e0;">
-                  <div class="slideshow-text container p-3 p-xl-5">
-                    <h2
-                      class="text-uppercase section-title fw-normal mt-5 mb-3 animate animate_fade animate_btt animate_delay-3">
-                      Pelatihan <br /><strong>UMKM Wakatobi</strong>
-                    </h2>
-                    <p class="mb-0 animate animate_fade animate_btt animate_delay-6">
-                      Pelatihan ini dirancang untuk para pelaku UMKM di Wakatobi agar mampu meningkatkan daya saing produk
-                      melalui strategi pemasaran digital yang efektif dan inovasi produk yang sesuai dengan kebutuhan
-                      pasar.
-                    </p>
-                  </div>
-                </div>
-                <div class="slide-split_media position-relative">
-                  <div class="slideshow-bg" style="background-color: #f5e6e0;">
-                    <img loading="lazy" src="assets/images/shop/umkm2.jpeg" width="630" height="450"
-                      alt="Women's accessories" class="slideshow-bg__img object-fit-cover" />
-                  </div>
-                </div>
-              </div>
-            </div>
+  <div class="swiper-wrapper">
 
+    {{-- Slide dari produk acak --}}
+    @foreach($randomProducts as $product)
+      <div class="swiper-slide">
+        <div class="slide-split h-100 d-block d-md-flex overflow-hidden">
+          <div class="slide-split_text position-relative d-flex align-items-center" style="background-color: #f5e6e0;">
+            <div class="slideshow-text container p-3 p-xl-5">
+              <h2 class="text-uppercase section-title fw-normal mt-5 mb-3">
+                Produk Unggulan <br><strong>{{ $product->name }}</strong>
+              </h2>
+              <p>{{ Str::limit($product->description, 150) }}</p>
+            </div>
+          </div>
+          <div class="slide-split_media position-relative">
+            <div class="slideshow-bg" style="background-color: #f5e6e0;">
+              <img loading="lazy"
+                src="{{ $product->image ? asset('uploads/products/' . $product->image) : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
+                width="630" height="450"
+                alt="{{ $product->name }}"
+                class="slideshow-bg__img object-fit-cover"
+                style="border-radius: 12px;" />
+            </div>
+          </div>
+        </div>
+      </div>
+    @endforeach
+  </div>
+
+          {{-- <div class="swiper-wrapper">
             <div class="swiper-slide">
               <div class="slide-split h-100 d-block d-md-flex overflow-hidden">
                 <div class="slide-split_text position-relative d-flex align-items-center"
@@ -202,7 +182,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> --}}
 
           <div class="container p-3 p-xl-5">
             <div class="slideshow-pagination d-flex align-items-center position-absolute bottom-0 mb-4 pb-xl-2">
@@ -278,7 +258,7 @@
                             src="{{ $product->image
                                 ? asset('uploads/products/' . $product->image)
                                 : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
-                            width="330" height="400" alt="{{ $product->name }}" class="pc__img">
+                            width="330" height="400" alt="{{ $product->name }}" class="pc__img" style="border-radius: 12px;">
 
                         </a>
                       </div>
@@ -287,7 +267,7 @@
                           <a href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}">
                             <img loading="lazy"
                               src="{{ $gimg ? asset('uploads/products/' . $gimg) : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
-                              width="330" height="400" alt="{{ $product->name }}" class="pc__img">
+                              width="330" height="400" alt="{{ $product->name }}" class="pc__img" style="border-radius: 12px;">
                           </a>
                         @endforeach
 
@@ -450,5 +430,24 @@
         }, 2000);
       });
     });
+
+    // slider
+      const swiper = new Swiper('.swiper-container', {
+    loop: true,
+    autoplay: {
+      delay: 3000, // 3 detik
+      disableOnInteraction: false,
+    },
+    speed: 600,
+    spaceBetween: 30,
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true
+    },
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev'
+    },
+  });
   </script>
 @endpush

@@ -56,7 +56,11 @@ class ShopController extends Controller
             ->orwhereBetween('sale_price',[$min_price,$max_price]);
         })
                         ->orderBy($o_column,$o_order)->paginate($size);
-        return view('shop', compact('products','size','order','brands','f_brands','categories','f_categories','min_price','max_price'));
+
+        // Ambil 5 produk secara acak
+        $randomProducts = Product::inRandomOrder()->take(5)->get();
+
+        return view('shop', compact('products','size','order','brands','f_brands','categories','f_categories','min_price','max_price','randomProducts'));
     }
 
     public function product_details($product_slug)

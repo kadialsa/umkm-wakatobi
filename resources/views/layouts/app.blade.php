@@ -764,6 +764,7 @@
     });
   </script>
   <script src="{{ asset('assets/js/theme.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
   @stack('scripts')
 </body>
 
