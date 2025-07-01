@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Address;
-
+use App\Models\NewAddress;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -15,7 +15,7 @@ class AddressController extends Controller
     public function index()
     {
         $userId = $userId = Auth::id(); // ambil ID user yang sedang login
-        $addresses = Address::where('user_id', $userId)->get();
+        $addresses = NewAddress::where('user_id', $userId)->get();
         return view('user.address', compact('addresses'));
     }
 

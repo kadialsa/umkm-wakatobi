@@ -113,7 +113,7 @@
       </div>
 
       <div class="shop-list flex-grow-1">
-        <div class="swiper-container js-swiper-slider slideshow slideshow_small slideshow_split"
+        <div class="swiper-container js-swiper-slider-features slideshow slideshow_small slideshow_split"
           data-settings='{
             "autoplay": {
               "delay": 5000
@@ -128,34 +128,34 @@
             }
           }'>
 
-  <div class="swiper-wrapper">
+          <div class="swiper-wrapper">
 
-    {{-- Slide dari produk acak --}}
-    @foreach($randomProducts as $product)
-      <div class="swiper-slide">
-        <div class="slide-split h-100 d-block d-md-flex overflow-hidden">
-          <div class="slide-split_text position-relative d-flex align-items-center" style="background-color: #f5e6e0;">
-            <div class="slideshow-text container p-3 p-xl-5">
-              <h2 class="text-uppercase section-title fw-normal mt-5 mb-3">
-                Produk Unggulan <br><strong>{{ $product->name }}</strong>
-              </h2>
-              <p>{{ Str::limit($product->description, 150) }}</p>
-            </div>
+            {{-- Slide dari produk acak --}}
+            @foreach ($randomProducts as $product)
+              <div class="swiper-slide">
+                <div class="slide-split h-100 d-block d-md-flex overflow-hidden">
+                  <div class="slide-split_text position-relative d-flex align-items-center"
+                    style="background-color: #f5e6e0;">
+                    <div class="slideshow-text container p-3 p-xl-5">
+                      <h3 class="text-uppercase fw-normal mt-5 mb-3">
+                        Produk Unggulan <br>
+                        <span><strong>{{ $product->name }}</strong></span>
+                      </h3>
+                      <p>{{ Str::limit($product->description, 150) }}</p>
+                    </div>
+                  </div>
+                  <div class="slide-split_media position-relative">
+                    <div class="slideshow-bg" style="background-color: #f5e6e0;">
+                      <img loading="lazy"
+                        src="{{ $product->image ? asset('uploads/products/' . $product->image) : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
+                        width="630" height="450" alt="{{ $product->name }}"
+                        class="slideshow-bg__img object-fit-cover" style="border-radius: 12px;" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            @endforeach
           </div>
-          <div class="slide-split_media position-relative">
-            <div class="slideshow-bg" style="background-color: #f5e6e0;">
-              <img loading="lazy"
-                src="{{ $product->image ? asset('uploads/products/' . $product->image) : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
-                width="630" height="450"
-                alt="{{ $product->name }}"
-                class="slideshow-bg__img object-fit-cover"
-                style="border-radius: 12px;" />
-            </div>
-          </div>
-        </div>
-      </div>
-    @endforeach
-  </div>
 
           {{-- <div class="swiper-wrapper">
             <div class="swiper-slide">
@@ -258,7 +258,8 @@
                             src="{{ $product->image
                                 ? asset('uploads/products/' . $product->image)
                                 : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
-                            width="330" height="400" alt="{{ $product->name }}" class="pc__img" style="border-radius: 12px;">
+                            width="330" height="400" alt="{{ $product->name }}" class="pc__img"
+                            style="border-radius: 12px;">
 
                         </a>
                       </div>
@@ -267,7 +268,8 @@
                           <a href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}">
                             <img loading="lazy"
                               src="{{ $gimg ? asset('uploads/products/' . $gimg) : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
-                              width="330" height="400" alt="{{ $product->name }}" class="pc__img" style="border-radius: 12px;">
+                              width="330" height="400" alt="{{ $product->name }}" class="pc__img"
+                              style="border-radius: 12px;">
                           </a>
                         @endforeach
 
@@ -432,22 +434,22 @@
     });
 
     // slider
-      const swiper = new Swiper('.swiper-container', {
-    loop: true,
-    autoplay: {
-      delay: 3000, // 3 detik
-      disableOnInteraction: false,
-    },
-    speed: 600,
-    spaceBetween: 30,
-    pagination: {
-      el: '.swiper-pagination',
-      clickable: true
-    },
-    navigation: {
-      nextEl: '.swiper-button-next',
-      prevEl: '.swiper-button-prev'
-    },
-  });
+    const swiper = new Swiper('.js-swiper-slider-features', {
+      loop: true,
+      autoplay: {
+        delay: 3000, // 3 detik
+        disableOnInteraction: false,
+      },
+      speed: 600,
+      spaceBetween: 30,
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true
+      },
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev'
+      },
+    });
   </script>
 @endpush
