@@ -29,7 +29,7 @@
       </div>
       <!-- form-add-product -->
       <form class="tf-section-2 form-add-product" method="post" enctype="multipart/form-data"
-        action="{{ route('store.product.update', ['product' => $product->id]) }}">
+        action="{{ route('store.products.update', ['product' => $product->id]) }}">
         @csrf
         @method('PUT')
         <input type="hidden" name="id" value="{{ $product->id }}" />

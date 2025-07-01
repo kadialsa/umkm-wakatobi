@@ -86,22 +86,20 @@
         <a href="javascript:void(0)" class="checkout-steps__item active">
           <span class="checkout-steps__item-number">01</span>
           <span class="checkout-steps__item-title">
-            <span>Keranjang</span>
-            <em>Kelola daftar item Anda</em>
+            <span>Keranjang</span><em>Kelola Daftar Barang</em>
           </span>
         </a>
         <a href="javascript:void(0)" class="checkout-steps__item">
           <span class="checkout-steps__item-number">02</span>
           <span class="checkout-steps__item-title">
-            <span>Pengiriman &amp; Pembayaran</span>
-            <em>Selesaikan pesanan Anda</em>
+            <span>Pengiriman & Pemesanan</span><em>Selesaikan Pesanan Anda</em>
           </span>
         </a>
         <a href="javascript:void(0)" class="checkout-steps__item">
           <span class="checkout-steps__item-number">03</span>
           <span class="checkout-steps__item-title">
             <span>Konfirmasi</span>
-            <em>Periksa &amp; Kirim Pesanan</em>
+            <em>Periksa & Pembayaran</em>
           </span>
         </a>
       </div>
@@ -123,7 +121,7 @@
                 @foreach ($items->groupBy(fn($item) => $item->model->store->id) as $storeId => $group)
                   {{-- Header nama toko --}}
                   <tr class="store-header">
-                    <td colspan="6" style="background: #f1f1f1; font-weight: 600; padding: .75rem;">
+                    <td colspan="6" style="background: #f1f1f1; font-weight: 600; padding: .4rem;">
                       <div class="d-flex align-items-center">
                         @php $store = $group->first()->model->store; @endphp
 
@@ -178,8 +176,12 @@
                     <tr>
                       <td>
                         <div class="shopping-cart__product-item">
-                          <img loading="lazy" src="{{ asset('uploads/products/thumbnails') }}/{{ $item->model->image }}"
-                            width="120" height="120" alt="{{ $item->name }}" />
+                          <img loading="lazy"
+                            src="{{ $item->model->image
+                                ? asset('uploads/products/thumbnails/' . $item->model->image)
+                                : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
+                            width="120" height="120" alt="{{ $item->name }}" class="pc__img py-2">
+
                         </div>
                       </td>
                       <td>

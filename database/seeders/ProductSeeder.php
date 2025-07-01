@@ -51,12 +51,15 @@ class ProductSeeder extends Seeder
                 $categoryId = $faker->randomElement($categoryIds);
                 $brandId    = $faker->randomElement($brandIds);
 
-                $regularPrice = $faker->randomFloat(2, 50, 2000);
-                // Sale price selalu terisi, lebih kecil dari regular
-                $salePrice = round($regularPrice * $faker->randomFloat(2, 0.5, 0.9), 2);
+                // Harga tetap fix
+                $regularPrice = 15000;
+                // Sale price juga fix
+                $salePrice = 15000;
 
                 // Gambar utama + tambahan
-                $mainImage   = $faker->imageUrl(640, 480, 'technics');
+                // $mainImage   = $faker->imageUrl(640, 480, 'technics');
+                $mainImage   = '';
+
                 $extraImages = [];
                 for ($j = 0; $j < 3; $j++) {
                     $extraImages[] = $faker->imageUrl(640, 480, 'technics');
@@ -82,6 +85,6 @@ class ProductSeeder extends Seeder
             }
         }
 
-        $this->command->info('Seeded ' . Product::count() . ' products — semua field terisi penuh dengan slug unik.');
+        $this->command->info('Seeded ' . Product::count() . ' products — semua field terisi penuh dengan slug unik dan harga fix 15000.');
     }
 }

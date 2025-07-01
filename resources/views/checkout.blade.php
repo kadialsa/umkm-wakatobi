@@ -5,6 +5,7 @@
     <section class="shop-checkout container pt-90">
       <h2 class="page-title">Pengiriman & Pemesanan</h2>
 
+      {{-- Langkah Checkout --}}
       <div class="checkout-steps mb-4">
         <a href="{{ route('cart.index') }}" class="checkout-steps__item active">
           <span class="checkout-steps__item-number">01</span>
@@ -15,17 +16,18 @@
         <a href="#" class="checkout-steps__item active">
           <span class="checkout-steps__item-number">02</span>
           <span class="checkout-steps__item-title">
-            <span>Pengiriman & Pembayaran</span><em>Selesaikan Pesanan Anda</em>
+            <span>Pengiriman & Pemesanan</span><em>Selesaikan Pesanan Anda</em>
           </span>
         </a>
         <a href="#" class="checkout-steps__item">
           <span class="checkout-steps__item-number">03</span>
           <span class="checkout-steps__item-title">
-            <span>Konfirmasi</span><em>Periksa & Kirim Pesanan</em>
+            <span>Konfirmasi</span><em>Periksa & Pembayaran</em>
           </span>
         </a>
       </div>
 
+      {{-- Form Checkout --}}
       <form action="{{ route('cart.place.an.order') }}" method="POST">
         @csrf
 
@@ -35,11 +37,14 @@
 
           @if ($address)
             <input type="hidden" name="address_id" value="{{ $address->id }}">
+            <input type="hidden" id="destination_id" name="destination_id" value="{{ $address->destination_id }}">
+
             <p>
-              <strong>{{ $address->name }}</strong><br>
-              {{ $address->address }}, {{ $address->locality }}<br>
-              {{ $address->city }}, {{ $address->state }}, {{ $address->country }}<br>
-              Kode Pos: {{ $address->zip }}<br>
+              <strong>{{ $address->recipient_name }}</strong><br>
+              {{ $address->full_address }}<br>
+              {{ $address->subdistrict }}, {{ $address->district }}<br>
+              {{ $address->city }}, {{ $address->province }}<br>
+              Kode Pos: {{ $address->zip_code }}<br>
               Telp: {{ $address->phone }}
             </p>
           @else
@@ -51,12 +56,64 @@
             <ul id="address_results" class="list-group position-absolute w-100"
               style="z-index:1000; max-height:200px; overflow:auto;"></ul>
 
-            <input type="hidden" name="destination_id" id="destination_id">
-            <input type="hidden" name="province_name" id="province_name">
-            <input type="hidden" name="city_name" id="city_name">
-            <input type="hidden" name="district_name" id="district_name">
-            <input type="hidden" name="subdistrict_name" id="subdistrict_name">
-            <input type="hidden" name="zip_code" id="zip_code">
+            <div class="row gx-2 gy-2 mt-3">
+              <div class="col-md-6 mt-4">
+                <div class="form-floating">
+                  <input type="text" readonly class="form-control" id="destination_id" name="destination_id">
+                  <label for="destination_id">ID Desa/Kelurahan</label>
+                </div>
+              </div>
+              <div class="col-md-6 mt-4">
+                <div class="form-floating">
+                  <input type="text" readonly class="form-control" id="subdistrict_name" name="subdistrict_name">
+                  <label for="subdistrict_name">Desa/Kelurahan</label>
+                </div>
+              </div>
+              <div class="col-md-6 mt-4">
+                <div class="form-floating">
+                  <input type="text" readonly class="form-control" id="district_name" name="district_name">
+                  <label for="district_name">Kecamatan</label>
+                </div>
+              </div>
+              <div class="col-md-6 mt-4">
+                <div class="form-floating">
+                  <input type="text" readonly class="form-control" id="city_name" name="city_name">
+                  <label for="city_name">Kota/Kabupaten</label>
+                </div>
+              </div>
+              <div class="col-md-6 mt-4">
+                <div class="form-floating">
+                  <input type="text" readonly class="form-control" id="province_name" name="province_name">
+                  <label for="province_name">Provinsi</label>
+                </div>
+              </div>
+              <div class="col-md-6 mt-4">
+                <div class="form-floating">
+                  <input type="text" readonly class="form-control" id="zip_code" name="zip_code">
+                  <label for="zip_code">Kode Pos</label>
+                </div>
+              </div>
+              <div class="col-md-12 mt-4">
+                <div class="form-floating">
+                  <textarea class="form-control" id="full_address" name="full_address" style="height: 100px !important" required>{{ old('full_address') }}</textarea>
+                  <label for="full_address">Alamat Lengkap</label>
+                </div>
+              </div>
+              <div class="col-md-6 mt-4">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="phone_number" name="phone_number"
+                    value="{{ old('phone_number') }}" required>
+                  <label for="phone_number">Nomor HP</label>
+                </div>
+              </div>
+              <div class="col-md-6 mt-4">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="recipient_name" name="recipient_name"
+                    value="{{ old('recipient_name') }}" required>
+                  <label for="recipient_name">Nama Penerima</label>
+                </div>
+              </div>
+            </div>
           @endif
         </div>
 
@@ -66,10 +123,12 @@
           <div class="mb-3 p-3 border rounded">
             <h5 class="d-flex align-items-center">
               @if ($store->logo)
-                <img src="{{ asset('storage/' . $store->logo) }}" alt="{{ $store->name }}" class="rounded-circle me-2"
-                  style="width:32px;height:32px;object-fit:cover;">
+                <img src="{{ asset('storage/' . $store->logo) }}" alt="{{ $store->name }}"
+                  class="rounded-circle me-2" style="width:32px;height:32px;object-fit:cover;">
               @else
-                <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-2"
+                <div
+                  class="rounded-circle bg-secondary text-white d-flex
+                          justify-content-center align-items-center me-2"
                   style="width:32px;height:32px;font-size:.675rem;">
                   {{ Str::upper(Str::substr($store->name, 0, 1)) }}
                 </div>
@@ -119,7 +178,7 @@
           </p>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100" {{ $address ? '' : 'disabled' }}>
+        <button type="submit" class="btn btn-primary w-100">
           Buat Pesanan
         </button>
       </form>
@@ -130,35 +189,91 @@
 @push('scripts')
   <script>
     (function() {
-      const input = document.getElementById('address_search');
-      const resultsEl = document.getElementById('address_results');
-      const optionsCtr = document.getElementById('shipping-options');
-      const grandTotalEl = document.getElementById('grand_total');
-      const submitBtn = document.querySelector('button[type=submit]');
-
       const originId = "{{ config('services.komship.origin_city_id') }}";
       const weightGram = "{{ $weight }}";
-      const couriers = "jne:jnt"; // hanya JNE & J&T
+      const couriers = "jne:jnt";
       const priceParam = "lowest";
 
-      function setHidden(id, val) {
-        document.getElementById(id).value = val;
+      function setShipping(service, cost) {
+        document.getElementById('shipping_service').value = service;
+        document.getElementById('shipping_cost').value = cost;
+        const subtotal = {{ $totalAll }};
+        document.getElementById('grand_total').innerText =
+          new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR'
+          })
+          .format(subtotal + cost);
       }
 
-      // debounce untuk pencarian desa
-      let timer;
+      async function renderShipping(destinationId) {
+        const res = await fetch(
+          `/komship/calculate-cost` +
+          `?origin=${originId}` +
+          `&destination=${destinationId}` +
+          `&weight=${weightGram}` +
+          `&courier=${encodeURIComponent(couriers)}` +
+          `&price=${priceParam}`
+        );
+        const {
+          data: opts = []
+        } = await res.json();
+        const container = document.getElementById('shipping-options');
+        container.innerHTML = '';
+
+        opts.forEach((svc, idx) => {
+          const price = Number(svc.cost) || 0;
+          const etd = svc.etd || '-';
+          const code = svc.code.toUpperCase();
+          const rid = `ship_opt_${idx}`;
+
+          const div = document.createElement('div');
+          div.className = 'form-check mb-2';
+          div.innerHTML = `
+        <input class="form-check-input" type="radio"
+               name="shipping_option" id="${rid}"
+               value="${price}" data-service="${code}">
+        <label class="form-check-label d-block" for="${rid}">
+          ${code} — ${new Intl.NumberFormat('id-ID',{
+            style:'currency',currency:'IDR'
+          }).format(price)}<br>
+          <small>Estimasi: ${etd}</small>
+        </label>
+      `;
+          container.appendChild(div);
+
+          if (idx === 0) {
+            div.querySelector('input').checked = true;
+            setShipping(code, price);
+          }
+
+          div.querySelector('input').addEventListener('change', e => {
+            setShipping(e.target.dataset.service, Number(e.target.value) || 0);
+          });
+        });
+
+        if (opts.length === 0) {
+          container.innerHTML = '<p class="text-danger">Opsi kurir tidak tersedia.</p>';
+        }
+      }
+
+      // Address search & selection (untuk alamat baru)
+      const input = document.getElementById('address_search');
+      const resultsEl = document.getElementById('address_results');
+      const submitBtn = document.querySelector('button[type=submit]');
+      let debounce;
+
       input?.addEventListener('input', () => {
-        clearTimeout(timer);
+        clearTimeout(debounce);
         const q = input.value.trim();
         if (q.length < 2) {
           resultsEl.innerHTML = '';
           return;
         }
-        timer = setTimeout(async () => {
+        debounce = setTimeout(async () => {
           const res = await fetch(`/komship/search-address?q=${encodeURIComponent(q)}&limit=5`);
           const json = await res.json();
-          const arr = json.data || [];
-          resultsEl.innerHTML = arr.map(item => `
+          resultsEl.innerHTML = (json.data || []).map(item => `
         <li class="list-group-item list-group-item-action"
             data-id="${item.id}"
             data-prov="${item.province_name}"
@@ -172,88 +287,31 @@
         }, 300);
       });
 
-      // saat user memilih desa
       resultsEl?.addEventListener('click', async e => {
         const li = e.target.closest('li[data-id]');
         if (!li) return;
 
-        // tampilkan di input
         input.value = `${li.dataset.subdist}, ${li.dataset.dist}, ${li.dataset.city}`;
         resultsEl.innerHTML = '';
 
-        // simpan detail alamat
-        ['destination_id', 'province_name', 'city_name', 'district_name', 'subdistrict_name', 'zip_code']
-        .forEach(key => setHidden(key, li.dataset[key.replace('_', '-')]));
+        // set all hidden inputs
+        document.getElementById('destination_id').value = li.dataset.id;
+        document.getElementById('subdistrict_name').value = li.dataset.subdist;
+        document.getElementById('district_name').value = li.dataset.dist;
+        document.getElementById('city_name').value = li.dataset.city;
+        document.getElementById('province_name').value = li.dataset.prov;
+        document.getElementById('zip_code').value = li.dataset.zip;
 
-        // aktifkan tombol submit
         submitBtn.disabled = false;
+        renderShipping(li.dataset.id);
+      });
 
-        // ambil ongkir
-        const url = `/komship/calculate-cost` +
-          `?origin=${originId}` +
-          `&destination=${li.dataset.id}` +
-          `&weight=${weightGram}` +
-          `&courier=${encodeURIComponent(couriers)}` +
-          `&price=${priceParam}`;
-        const resp = await fetch(url);
-        const costJson = await resp.json();
-
-        // filter hanya code 'jne' & 'jnt'
-        const filtered = (costJson.data || []).filter(svc => ['jne', 'jnt'].includes(svc.code.toLowerCase()));
-
-        // render opsi
-        optionsCtr.innerHTML = '';
-        filtered.forEach((svc, idx) => {
-          const price = Number(svc.cost) || 0;
-          const etd = svc.etd || '-';
-          const rid = `ship_opt_${idx}`;
-
-          const div = document.createElement('div');
-          div.className = 'form-check mb-2';
-          div.innerHTML = `
-        <input class="form-check-input" type="radio"
-               name="shipping_option" id="${rid}"
-               value="${price}" data-service="${svc.code}">
-        <label class="form-check-label d-block" for="${rid}">
-          <span>${svc.code.toUpperCase()} — ${new Intl.NumberFormat('id-ID',{
-            style:'currency',currency:'IDR'
-          }).format(price)}</span><br>
-          <small>Estimasi : (${etd})</small>
-        </label>
-      `;
-          optionsCtr.appendChild(div);
-
-          // default pilih pertama
-          if (idx === 0) {
-            div.querySelector('input').checked = true;
-            setHidden('shipping_service', svc.code.toUpperCase());
-            setHidden('shipping_cost', price);
-            const total = {{ $totalAll }} + price;
-            grandTotalEl.innerText = new Intl.NumberFormat('id-ID', {
-              style: 'currency',
-              currency: 'IDR'
-            }).format(total);
-          }
-        });
-
-        if (filtered.length === 0) {
-          optionsCtr.innerHTML = '<p class="text-danger">Maaf, opsi JNE/J&T tidak tersedia.</p>';
+      // Jika alamat sudah ada, langsung hitung ongkir
+      document.addEventListener('DOMContentLoaded', () => {
+        const destEl = document.getElementById('destination_id');
+        if (destEl && destEl.value) {
+          renderShipping(destEl.value);
         }
-
-        // update total saat ganti opsi
-        optionsCtr.querySelectorAll('input[name="shipping_option"]').forEach(radio => {
-          radio.addEventListener('change', e => {
-            const code = e.target.dataset.service.toUpperCase();
-            const price = Number(e.target.value) || 0;
-            setHidden('shipping_service', code);
-            setHidden('shipping_cost', price);
-            const total = {{ $totalAll }} + price;
-            grandTotalEl.innerText = new Intl.NumberFormat('id-ID', {
-              style: 'currency',
-              currency: 'IDR'
-            }).format(total);
-          });
-        });
       });
     })();
   </script>

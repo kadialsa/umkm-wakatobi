@@ -77,56 +77,59 @@
         <div class="position-relative">
           <div class="swiper-container js-swiper-slider"
             data-settings='{
-              "autoplay": {
-                "delay": 5000
-              },
+          "autoplay": {
+            "delay": 5000
+          },
+          "slidesPerView": 8,
+          "slidesPerGroup": 1,
+          "effect": "none",
+          "loop": true,
+          "navigation": {
+            "nextEl": ".products-carousel__next-1",
+            "prevEl": ".products-carousel__prev-1"
+          },
+          "breakpoints": {
+            "320": {
+              "slidesPerView": 2,
+              "slidesPerGroup": 2,
+              "spaceBetween": 15
+            },
+            "768": {
+              "slidesPerView": 4,
+              "slidesPerGroup": 4,
+              "spaceBetween": 30
+            },
+            "992": {
+              "slidesPerView": 6,
+              "slidesPerGroup": 1,
+              "spaceBetween": 45,
+              "pagination": false
+            },
+            "1200": {
               "slidesPerView": 8,
               "slidesPerGroup": 1,
-              "effect": "none",
-              "loop": true,
-              "navigation": {
-                "nextEl": ".products-carousel__next-1",
-                "prevEl": ".products-carousel__prev-1"
-              },
-              "breakpoints": {
-                "320": {
-                  "slidesPerView": 2,
-                  "slidesPerGroup": 2,
-                  "spaceBetween": 15
-                },
-                "768": {
-                  "slidesPerView": 4,
-                  "slidesPerGroup": 4,
-                  "spaceBetween": 30
-                },
-                "992": {
-                  "slidesPerView": 6,
-                  "slidesPerGroup": 1,
-                  "spaceBetween": 45,
-                  "pagination": false
-                },
-                "1200": {
-                  "slidesPerView": 8,
-                  "slidesPerGroup": 1,
-                  "spaceBetween": 60,
-                  "pagination": false
-                }
-              }
-            }'>
+              "spaceBetween": 60,
+              "pagination": false
+            }
+          }
+        }'>
             <div class="swiper-wrapper">
               @foreach ($categories as $category)
                 <div class="swiper-slide">
                   <img loading="lazy" class="w-100 h-auto mb-3"
-                    src="{{ asset('uploads/categories') }}/{{ $category->image }}" width="124" height="124"
-                    alt="" />
+                    src="{{ $category->image
+                        ? asset('uploads/categories/' . $category->image)
+                        : 'https://img.freepik.com/premium-vector/image-available-icon-set-default-missing-photo-stock-vector-symbol-black-filled-outlined-style-no-image-found-sign_268104-6708.jpg?semt=ais_hybrid&w=740' }}"
+                    width="124" height="124" alt="{{ $category->name ?? 'No Image' }}" />
                   <div class="text-center">
-                    <a href="{{ route('shop.index', ['categories' => $category->id]) }}"
-                      class="menu-link fw-medium">{{ $category->name }}</a>
+                    <a href="{{ route('shop.index', ['categories' => $category->id]) }}" class="menu-link fw-medium">
+                      {{ $category->name }}
+                    </a>
                   </div>
                 </div>
               @endforeach
             </div><!-- /.swiper-wrapper -->
-          </div><!-- /.swiper-container js-swiper-slider -->
+          </div><!-- /.swiper-container -->
 
           <div
             class="products-carousel__prev products-carousel__prev-1 position-absolute top-50 d-flex align-items-center justify-content-center">
@@ -134,6 +137,7 @@
               <use href="#icon_prev_md" />
             </svg>
           </div><!-- /.products-carousel__prev -->
+
           <div
             class="products-carousel__next products-carousel__next-1 position-absolute top-50 d-flex align-items-center justify-content-center">
             <svg width="25" height="25" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
@@ -142,6 +146,7 @@
           </div><!-- /.products-carousel__next -->
         </div><!-- /.position-relative -->
       </section>
+
 
       <div class="mb-3 mb-xl-5 pt-1 pb-4"></div>
 
@@ -217,33 +222,41 @@
                   }
                 }'>
                 <div class="swiper-wrapper">
+
                   @foreach ($sproducts as $sproduct)
                     <div class="swiper-slide product-card product-card_style3">
                       <div class="pc__img-wrapper">
                         <a href="{{ route('shop.product.details', ['product_slug' => $sproduct->slug]) }}">
-                          <img loading="lazy" src="{{ asset('uploads/products') }}/{{ $sproduct->image }}"
-                            width="258" height="313" alt="{{ $sproduct->name }}" class="pc__img">
+                          <img loading="lazy"
+                            src="{{ $sproduct->image
+                                ? asset('uploads/products/' . $sproduct->image)
+                                : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
+                            width="258" height="313" alt="{{ $sproduct->name ?? 'No Image' }}" class="pc__img" />
                         </a>
                       </div>
 
                       <div class="pc__info position-relative">
                         <h6 class="pc__title">
-                          <a
-                            href="{{ route('shop.product.details', ['product_slug' => $sproduct->slug]) }}">{{ $sproduct->name }}</a>
+                          <a href="{{ route('shop.product.details', ['product_slug' => $sproduct->slug]) }}">
+                            {{ $sproduct->name }}
+                          </a>
                         </h6>
                         <div class="product-card__price d-flex">
                           <span class="money price text-secondary">
                             @if ($sproduct->sale_price)
-                              <s>@rupiahSymbol($sproduct->regular_price)</s> <span class="text-dark fw-bold">@rupiahSymbol($sproduct->sale_price)</span>
+                              <s>@rupiahSymbol($sproduct->regular_price)</s>
+                              <span class="text-dark fw-bold">
+                                @rupiahSymbol($sproduct->sale_price)
+                              </span>
                             @else
                               @rupiahSymbol($sproduct->regular_price)
                             @endif
                           </span>
                         </div>
-
                       </div>
                     </div>
                   @endforeach
+
 
                 </div><!-- /.swiper-wrapper -->
               </div><!-- /.swiper-container js-swiper-slider -->
@@ -295,8 +308,12 @@
               <div class="product-card product-card_style3 mb-3 mb-md-4 mb-xxl-5">
                 <div class="pc__img-wrapper">
                   <a href="{{ route('shop.product.details', ['product_slug' => $fproduct->slug]) }}">
-                    <img loading="lazy" src="{{ asset('uploads/products') }}/{{ $fproduct->image }}" width="330"
-                      height="400" alt="{{ $fproduct->name }}" class="pc__img">
+                    <img loading="lazy"
+                      src="{{ $fproduct->image
+                          ? asset('uploads/products/' . $fproduct->image)
+                          : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
+                      width="330" height="400" alt="{{ $fproduct->name }}" class="pc__img">
+
                   </a>
                 </div>
 

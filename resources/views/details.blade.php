@@ -269,19 +269,19 @@
           </div>
 
           <!-- Store Information -->
-          <div class="store-info-card d-flex align-items-center">
+          <div class="store-info-card d-flex align-items-center mt-0">
             @if ($product->store->logo)
               <img src="{{ asset('storage/' . $product->store->logo) }}" alt="{{ $product->store->name }}"
-                class="rounded-circle me-3" style="width:48px; height:48px; object-fit:cover;">
+                class="rounded-circle me-3" style="width:32px; height:32px; object-fit:cover;">
             @else
               <!-- fallback: inisial nama toko -->
               <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-3"
-                style="width:48px; height:48px; font-weight:bold;">
+                style="width:32px; height:32px; font-weight:bold;">
                 {{ Str::upper(Str::substr($product->store->name, 0, 1)) }}
               </div>
             @endif
 
-            <h5 class="mb-0">Toko {{ $product->store->name }}</h5>
+            <h6 class="mb-0">Toko {{ $product->store->name }}</h6>
           </div>
 
           {{-- <div class="store-info-card">

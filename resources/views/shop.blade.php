@@ -273,16 +273,24 @@
                     <div class="swiper-wrapper">
 
                       <div class="swiper-slide">
-                        <a href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}"><img
-                            loading="lazy" src="{{ asset('uploads/products') }}/{{ $product->image }}" width="330"
-                            height="400" alt="{{ $product->name }}" class="pc__img"></a>
+                        <a href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}">
+                          <img loading="lazy"
+                            src="{{ $product->image
+                                ? asset('uploads/products/' . $product->image)
+                                : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
+                            width="330" height="400" alt="{{ $product->name }}" class="pc__img">
+
+                        </a>
                       </div>
                       <div class="swiper-slide">
                         @foreach (explode(',', $product->images) as $gimg)
-                          <a href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}"><img
-                              loading="lazy" src="{{ asset('uploades/products') }}/{{ $gimg }}"
-                              width="330" height="400" alt="{{ $product->name }}" class="pc__img"></a>
+                          <a href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}">
+                            <img loading="lazy"
+                              src="{{ $gimg ? asset('uploads/products/' . $gimg) : 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg' }}"
+                              width="330" height="400" alt="{{ $product->name }}" class="pc__img">
+                          </a>
                         @endforeach
+
                       </div>
 
                     </div>

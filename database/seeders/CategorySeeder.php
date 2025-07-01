@@ -32,7 +32,8 @@ class CategorySeeder extends Seeder
             $parent = Category::create([
                 'name'      => $parentName,
                 'slug'      => Str::slug($parentName),
-                'image'     => $faker->imageUrl(640, 480, 'food'), // adjust category keyword as needed
+                // 'image'     => $faker->imageUrl(640, 480, 'food'),
+                'image'     => '',
                 'parent_id' => null,
             ]);
 
@@ -40,7 +41,8 @@ class CategorySeeder extends Seeder
                 Category::create([
                     'name'      => $childName,
                     'slug'      => Str::slug($parentName . ' ' . $childName),
-                    'image'     => $faker->imageUrl(640, 480, 'product'),
+                    // 'image'     => $faker->imageUrl(640, 480, 'product'),
+                    'image'     => '',
                     'parent_id' => $parent->id,
                 ]);
             }

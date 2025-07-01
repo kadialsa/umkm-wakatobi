@@ -32,7 +32,7 @@
               </div>
             </form>
           </div>
-          <a class="tf-button style-1 w208" href="{{ route('store.product.create') }}"><i class="icon-plus"></i>Add
+          <a class="tf-button style-1 w208" href="{{ route('store.products.create') }}"><i class="icon-plus"></i>Add
             new</a>
         </div>
         <div class="table-responsive">
@@ -81,12 +81,12 @@
                   <td>{{ $product->quantity }}</td>
                   <td>
                     <div class="list-icon-function">
-                      <a href="{{ route('store.product.edit', ['product' => $product->id]) }}">
+                      <a href="{{ route('store.products.edit', ['product' => $product->id]) }}">
                         <div class="item edit">
                           <i class="icon-edit-3"></i>
                         </div>
                       </a>
-                      <form action="{{ route('store.product.destroy', ['product' => $product->id]) }}" method="POST">
+                      <form action="{{ route('store.products.destroy', ['product' => $product->id]) }}" method="POST">
                         @csrf
                         @method('DELETE')
                         <div class="item text-danger delete" style="border:none; background:none; color:red;">

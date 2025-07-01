@@ -8,8 +8,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MidtransController;
-use App\Http\Controllers\OrderController;
+// use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\Store\OrderController;
 use App\Http\Controllers\Store\ProductController;
 use App\Http\Controllers\Store\StoreController;
 use App\Http\Controllers\UserController;
@@ -42,7 +43,7 @@ Route::post('/wishlist/move-to-cart/{rowId}', [WishlistController::class, 'move_
 
 Route::get('/checkout', [CartController::class, 'Checkout'])->name('cart.checkout');
 Route::post('/place-an-order', [CartController::class, 'place_an_order'])->name('cart.place.an.order');
-Route::get('/order-comfirmation', [CartController::class, 'order_comfirmation'])->name('cart.order.comfirmation');
+Route::get('/order-confirmation', [CartController::class, 'order_confirmation'])->name('cart.order.confirmation');
 
 Route::get('/contact-us', [HomeController::class, 'contact'])->name('home.contact');
 Route::post('/contact/store', [HomeController::class, 'contact_store'])->name('home.contact.store');
@@ -57,8 +58,6 @@ Route::get('/komship/calculate-cost',  [LocationController::class, 'calculateCos
 
 // Cek demo
 Route::get('/komship/demo', [LocationController::class, 'demo']);
-
-
 
 
 
@@ -94,29 +93,22 @@ Route::middleware(['auth', AuthStore::class])
         Route::get('/', [StoreController::class, 'index'])->name('index');
 
         // Product
-        // List produk
-        Route::get('products', [ProductController::class, 'index'])
-            ->name('products.index');
+        Route::resource('products', ProductController::class)
+            ->except(['show']);
 
-        // Form tambah produk
-        Route::get('products/create', [ProductController::class, 'create'])
-            ->name('product.create');
+        // Order
+        Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/{order}', [OrderController::class, 'show'])
+            ->name('orders.show');
 
-        // Simpan produk baru
-        Route::post('products', [ProductController::class, 'store'])
-            ->name('product.store');
+        Route::put('orders/{order_id}/update-status', [OrderController::class, 'updateStatus'])
+            ->name('orders.update.status');
 
-        // Form edit produk
-        Route::get('products/{product}/edit', [ProductController::class, 'edit'])
-            ->name('product.edit');
-
-        // Update produk
-        Route::put('products/{product}', [ProductController::class, 'update'])
-            ->name('product.update');
-
-        // Hapus produk
-        Route::delete('products/{product}', [ProductController::class, 'destroy'])
-            ->name('product.destroy');
+        // Endpoints untuk processing
+        Route::post('orders/{order}/ship',      [OrderController::class, 'ship'])->name('orders.ship');
+        Route::post('orders/{order}/deliver',   [OrderController::class, 'deliver'])->name('orders.deliver');
+        Route::post('orders/{order}/complete',  [OrderController::class, 'complete'])->name('orders.complete');
+        Route::post('orders/{order}/cancel',    [OrderController::class, 'cancel'])->name('orders.cancel');
     });
 
 
