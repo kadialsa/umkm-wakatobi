@@ -1,5 +1,21 @@
 @extends('layouts.admin')
 
+@push('styles')
+  <style>
+    .form-label {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .form-control {
+      padding: .75rem;
+      font-size: 1.4rem;
+      border: 1px solid #686c6c !important;
+    }
+  </style>
+@endpush
+
 @section('content')
   <div class="main-content-inner">
     <div class="main-content-wrap">
@@ -28,7 +44,7 @@
             @method('PUT')
           @endif
 
-          <div class="mb-3">
+          <div class="mb-20">
             <label class="form-label">Title <span class="text-danger">*</span></label>
             <input type="text" name="title" class="form-control @error('title') is-invalid @enderror"
               value="{{ old('title', $blog->title ?? '') }}" required>
@@ -37,8 +53,8 @@
             @enderror
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Header Image</label>
+          <div class="mb-20">
+            <label class="form-label">Image</label>
             @if (isset($blog) && $blog->image)
               <div class="mb-2">
                 <img src="{{ asset('storage/' . $blog->image) }}" class="img-thumbnail" style="max-height:150px;">
@@ -50,7 +66,7 @@
             @enderror
           </div>
 
-          <div class="mb-3">
+          <div class="mb-20">
             <label class="form-label">Excerpt</label>
             <textarea name="excerpt" rows="3" class="form-control @error('excerpt') is-invalid @enderror">{{ old('excerpt', $blog->excerpt ?? '') }}</textarea>
             @error('excerpt')
@@ -58,7 +74,7 @@
             @enderror
           </div>
 
-          <div class="mb-3">
+          <div class="mb-20">
             <label class="form-label">Body <span class="text-danger">*</span></label>
             <textarea name="body" rows="6" class="form-control @error('body') is-invalid @enderror" required>{{ old('body', $blog->body ?? '') }}</textarea>
             @error('body')
@@ -66,7 +82,7 @@
             @enderror
           </div>
 
-          <div class="mb-4">
+          <div class="mb-20">
             <label class="form-label">Publish At</label>
             <input type="datetime-local" name="published_at"
               class="form-control @error('published_at') is-invalid @enderror"

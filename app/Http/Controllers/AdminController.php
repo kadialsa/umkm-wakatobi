@@ -623,9 +623,25 @@ class AdminController extends Controller
     }
 
     // sliders
-    public function slides()
+    public function slides(Request $request)
     {
-        $slides = Slide::orderBy('id', 'DESC')->paginate(12);
+        // Mulai query
+        $query = Slide::orderBy('id', 'DESC');
+
+        // Jika ada parameter ?search=...
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('tagline', 'like', "%{$search}%")
+                    ->orWhere('title',   'like', "%{$search}%")
+                    ->orWhere('subtitle', 'like', "%{$search}%")
+                    ->orWhere('link',    'like', "%{$search}%");
+            });
+        }
+
+        // Paginate dan bawa parameter search ke pagination links
+        $slides = $query->paginate(12)
+            ->appends($request->only('search'));
+
         return view('admin.slides', compact('slides'));
     }
 

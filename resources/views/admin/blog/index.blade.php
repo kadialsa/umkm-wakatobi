@@ -46,11 +46,11 @@
           <table class="table table-striped table-bordered">
             <thead>
               <tr>
-                <th style="width: 50px">#</th>
-                <th style="width:100px">Image</th>
+                <th>#</th>
+                <th>Image</th>
                 <th>Title</th>
-                <th style="width:120px">Published</th>
-                <th style="width:120px">Action</th>
+                <th>Published</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -79,20 +79,20 @@
                       {{ $post->published_at ? $post->published_at->format('d M Y') : 'Draft' }}
                     </td>
                     <td>
-                      <div class="list-icon-function d-flex gap-2">
+                      <div class="list-icon-function d-flex gap-4">
                         {{-- View --}}
                         <a href="{{ route('blog.show', $post) }}">
-                          <i class="icon-eye text-primary"></i>
+                          <i class="fs-3 icon-eye text-primary ps-3"></i>
                         </a>
                         {{-- Edit --}}
                         <a href="{{ route('blog.edit', $post) }}">
-                          <i class="icon-edit-3 text-success"></i>
+                          <i class="fs-3 icon-edit-3 text-success"></i>
                         </a>
                         {{-- Delete --}}
                         <form action="{{ route('blog.destroy', $post) }}" method="POST" class="d-inline delete-form">
                           @csrf @method('DELETE')
-                          <button type="button" class="border-0 bg-transparent text-danger">
-                            <i class="icon-trash-2"></i>
+                          <button type="button" class="border-0 bg-transparent text-danger p-0">
+                            <i class="fs-3 icon-trash-2"></i>
                           </button>
                         </form>
                       </div>
