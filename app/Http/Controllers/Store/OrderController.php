@@ -15,22 +15,27 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $storeId = Auth::user()->store()->first()->id;
+        $storeId = Auth::user()->store->id;
 
-        // Opsional: filter pencarian via ?search=
-        $query = Order::with(['user', 'orderItems.product'])
+        $query = Order::with(['user'])
             ->where('store_id', $storeId)
             ->orderBy('created_at', 'desc');
 
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('id', $search)
-                    ->orWhereHas('user', fn($u) => $u->where('name', 'like', '%' . $search . '%'));
+        if ($keyword = $request->input('search')) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('id', $keyword)
+                    ->orWhere('recipient_name', 'like', "%{$keyword}%")
+                    ->orWhereHas(
+                        'user',
+                        fn($u) =>
+                        $u->where('name', 'like', "%{$keyword}%")
+                    );
             });
         }
 
-        $orders = $query->paginate(10)
-            ->appends($request->only('search'));
+        $orders = $query
+            ->paginate(10)
+            ->appends(['search' => $keyword]);
 
         return view('store.orders.index', compact('orders'));
     }

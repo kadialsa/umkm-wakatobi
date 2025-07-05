@@ -137,28 +137,7 @@
                   </ul>
                 </li> --}}
 
-                {{-- adress --}}
-                <li class="menu-item has-children">
-                  <a href="javascript:void(0);" class="menu-item-button">
-                    <div class="icon"><i class="icon-map"></i></div>
-                    <div class="text">Address</div>
-                  </a>
-                  <ul class="sub-menu">
-                    <li class="sub-menu-item">
-                      <a href="{{ route('admin.address.add') }}" class="">
-                        <div class="text">New Addres</div>
-                      </a>
-                    </li>
-                    <li class="sub-menu-item">
-                      <a href="{{ route('admin.address') }}" class="">
-                        <div class="text">Address</div>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-
-
-                {{-- adress --}}
+                {{-- Blog --}}
                 <li class="menu-item has-children">
                   <a href="javascript:void(0);" class="menu-item-button">
                     <div class="icon">
@@ -181,7 +160,7 @@
                 </li>
 
                 <li class="menu-item">
-                  <a href="#" class="">
+                  <a href="{{ route('admin.users.index') }}" class="">
                     <div class="icon">
                       <i class="icon-user"></i>
                     </div>
@@ -323,162 +302,7 @@
   <script src="{{ asset('js/sweetalert.min.js') }}"></script>
   <script src="{{ asset('js/apexcharts/apexcharts.js') }}"></script>
   <script src="{{ asset('js/main.js') }}"></script>
-  {{-- search --}}
-  <script>
-    $(function() {
-      $("#search-input").on("keyup", function() {
-        var searchQuery = $(this).val();
-        if (searchQuery.length > 2) {
-          $.ajax({
-            type: "GET",
-            url: "{{ route('admin.search') }}",
-            data: {
-              query: searchQuery
-            },
-            dataType: 'json',
-            success: function(data) {
-              $("#box-content-search").html('');
-              $.each(data, function(index, item) {
-                var url = "{{ route('admin.product.edit', ['id' => 'product_id']) }}";
-                var link = url.replace('product_id', item.id);
 
-                $("#box-content-search").append(`
-                                <li>
-                                    <ul>
-                                        <li class="product-item gap14 mb-10">
-                                            <div class="image no-bg">
-                                                <img src="{{ asset('uploads/products/thumbnails') }}/${item.image}" alt="${item.name}">
-                                            </div>
-                                            <div class="flex items-center justify-between gap20 flex-grow">
-                                                <div class="name">
-                                                    <a href="${link}" class="body-text">${item.name}</a>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li class="mb-10">
-                                            <div class="divider"></div>
-                                        </li>
-                                    </ul>
-                                </li>
-                                `);
-              });
-            }
-
-          });
-        }
-      });
-    });
-  </script>
-  {{-- endsearch --}}
-  <script>
-    (function($) {
-
-      var tfLineChart = (function() {
-
-        var chartBar = function() {
-
-          var options = {
-            series: [{
-                name: 'Total',
-                data: [0.00, 0.00, 0.00, 0.00, 0.00, 273.22, 208.12, 0.00, 0.00,
-                  0.00, 0.00, 0.00
-                ]
-              }, {
-                name: 'Pending',
-                data: [0.00, 0.00, 0.00, 0.00, 0.00, 273.22, 208.12, 0.00, 0.00,
-                  0.00, 0.00, 0.00
-                ]
-              },
-              {
-                name: 'Delivered',
-                data: [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
-                  0.00, 0.00
-                ]
-              }, {
-                name: 'Canceled',
-                data: [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
-                  0.00, 0.00
-                ]
-              }
-            ],
-            chart: {
-              type: 'bar',
-              height: 325,
-              toolbar: {
-                show: false,
-              },
-            },
-            plotOptions: {
-              bar: {
-                horizontal: false,
-                columnWidth: '10px',
-                endingShape: 'rounded'
-              },
-            },
-            dataLabels: {
-              enabled: false
-            },
-            legend: {
-              show: false,
-            },
-            colors: ['#2377FC', '#FFA500', '#078407', '#FF0000'],
-            stroke: {
-              show: false,
-            },
-            xaxis: {
-              labels: {
-                style: {
-                  colors: '#212529',
-                },
-              },
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
-                'Oct', 'Nov', 'Dec'
-              ],
-            },
-            yaxis: {
-              show: false,
-            },
-            fill: {
-              opacity: 1
-            },
-            tooltip: {
-              y: {
-                formatter: function(val) {
-                  return "$ " + val + ""
-                }
-              }
-            }
-          };
-
-          chart = new ApexCharts(
-            document.querySelector("#line-chart-8"),
-            options
-          );
-          if ($("#line-chart-8").length > 0) {
-            chart.render();
-          }
-        };
-
-        /* Function ============ */
-        return {
-          init: function() {},
-
-          load: function() {
-            chartBar();
-          },
-          resize: function() {},
-        };
-      })();
-
-      jQuery(document).ready(function() {});
-
-      jQuery(window).on("load", function() {
-        tfLineChart.load();
-      });
-
-      jQuery(window).on("resize", function() {});
-    })(jQuery);
-  </script>
 
   @stack('scripts')
 </body>

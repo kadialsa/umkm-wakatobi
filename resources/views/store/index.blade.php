@@ -1,345 +1,273 @@
 @extends('layouts.store')
 
+@push('styles')
+  <style>
+    .table-responsive {
+      font-size: 14px !important;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .gap-5 {
+      gap: 9rem !important;
+    }
+
+    .dashboard-card {
+      transition: transform .15s ease-in-out;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .icon-box {
+      width: 45px;
+      height: 45px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .table-hover tbody tr:hover {
+      background-color: rgba(0, 0, 0, .03);
+    }
+  </style>
+@endpush
+
 @section('content')
   <div class="main-content-inner">
 
-    <div class="main-content-wrap">
-      <div class="tf-section-2 mb-30">
-        <div class="flex gap20 flex-wrap-mobile">
-          <div class="w-half">
-
-            <div class="wg-chart-default mb-20">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap14">
-                  <div class="image ic-bg">
-                    <i class="icon-shopping-bag"></i>
-                  </div>
-                  <div>
-                    <div class="body-text mb-2">Total Orders</div>
-                    <h4>{{ $dashboardDatas->Total }}</h4>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="wg-chart-default mb-20">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap14">
-                  <div class="image ic-bg">
-                    <i class="icon-dollar-sign"></i>
-                  </div>
-                  <div>
-                    <div class="body-text mb-2">Total Amount</div>
-                    <h4>Rp.{{ number_format($dashboardDatas->TotalAmount, 0, ',', '.') }}</h4>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="wg-chart-default mb-20">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap14">
-                  <div class="image ic-bg">
-                    <i class="icon-shopping-bag"></i>
-                  </div>
-                  <div>
-                    <div class="body-text mb-2">Pending Orders</div>
-                    <h4>{{ $dashboardDatas->TotalOrdered }}</h4>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="wg-chart-default">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap14">
-                  <div class="image ic-bg">
-                    <i class="icon-dollar-sign"></i>
-                  </div>
-                  <div>
-                    <div class="body-text mb-2">Pending Orders Amount</div>
-                    <h4>Rp.{{ number_format($dashboardDatas->TotalOrderedAmount, 0, ',', '.') }}</h4>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="w-half">
-
-            <div class="wg-chart-default mb-20">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap14">
-                  <div class="image ic-bg">
-                    <i class="icon-shopping-bag"></i>
-                  </div>
-                  <div>
-                    <div class="body-text mb-2">Delivered Orders</div>
-                    <h4>{{ $dashboardDatas->TotalDelivered }}</h4>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="wg-chart-default mb-20">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap14">
-                  <div class="image ic-bg">
-                    <i class="icon-dollar-sign"></i>
-                  </div>
-                  <div>
-                    <div class="body-text mb-2">Delivered Orders Amount</div>
-                    <h4>Rp.{{ number_format($dashboardDatas->TotalDeliveredAmount, 0, ',', '.') }}</h4>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="wg-chart-default mb-20">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap14">
-                  <div class="image ic-bg">
-                    <i class="icon-shopping-bag"></i>
-                  </div>
-                  <div>
-                    <div class="body-text mb-2">Canceled Orders</div>
-                    <h4>{{ $dashboardDatas->TotalCanceled }}</h4>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="wg-chart-default">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap14">
-                  <div class="image ic-bg">
-                    <i class="icon-dollar-sign"></i>
-                  </div>
-                  <div>
-                    <div class="body-text mb-2">Canceled Orders Amount</div>
-                    <h4>Rp.{{ number_format($dashboardDatas->TotalCanceledAmount, 0, ',', '.') }}</h4>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <div class="wg-box">
-          <div class="flex items-center justify-between">
-            <h5>Monthly Revenue</h5>
-          </div>
-          <div class="flex flex-wrap gap40">
-            <div>
-              <div class="mb-2">
-                <div class="block-legend">
-                  <div class="dot t1"></div>
-                  <div class="text-tiny">Total</div>
-                </div>
-              </div>
-              <div class="flex items-center gap10">
-                <h4>Rp.{{ number_format($TotalAmount, 0, ',', '.') }}</h4>
-              </div>
-            </div>
-            <div>
-              <div class="mb-2">
-                <div class="block-legend">
-                  <div class="dot t2"></div>
-                  <div class="text-tiny">Pending</div>
-                </div>
-              </div>
-              <div class="flex items-center gap10">
-                <h4>Rp.{{ number_format($TotalOrderedAmount, 0, ',', '.') }}</h4>
-              </div>
-            </div>
-            <div>
-              <div class="mb-2">
-                <div class="block-legend">
-                  <div class="dot t3"></div>
-                  <div class="text-tiny">Delivered</div>
-                </div>
-              </div>
-              <div class="flex items-center gap10">
-                <h4>Rp.{{ number_format($TotalDeliveredAmount, 0, ',', '.') }}</h4>
-              </div>
-            </div>
-            <div>
-              <div class="mb-2">
-                <div class="block-legend">
-                  <div class="dot t4"></div>
-                  <div class="text-tiny">Canceled</div>
-                </div>
-              </div>
-              <div class="flex items-center gap10">
-                <h4>Rp.{{ number_format($TotalCanceledAmount, 0, ',', '.') }}</h4>
-              </div>
-            </div>
-          </div>
-          <div id="line-chart-8"></div>
-        </div>
-
-      </div>
-
-      <div class="tf-section mb-30">
-        <div class="wg-box">
-          <div class="flex items-center justify-between">
-            <h5>Recent Orders</h5>
-            <div class="dropdown default">
-              <a class="btn btn-secondary dropdown-toggle" href="#">
-                <span class="view-all">View all</span>
-              </a>
-            </div>
-          </div>
-          <div class="wg-table table-all-user">
-            <div class="table-responsive">
-              <table class="table table-striped table-bordered">
-                <thead>
-                  <tr>
-                    <th style="width:70px">Order No</th>
-                    <th class="text-center">Name</th>
-                    <th class="text-center">Phone</th>
-                    <th class="text-center">Subtotal</th>
-                    <th class="text-center">Tax</th>
-                    <th class="text-center">Total</th>
-                    <th class="text-center">Status</th>
-                    <th class="text-center">Order Date</th>
-                    <th class="text-center">Total Items</th>
-                    <th class="text-center">Delivered On</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @foreach ($orders as $order)
-                    <tr>
-                      <td class="text-center">{{ $order->id }}</td>
-                      <td class="text-center">{{ $order->name }}</td>
-                      <td class="text-center">{{ $order->phone }}</td>
-                      <td class="text-center">Rp.{{ number_format($order->subtotal, 0, ',', '.') }}</td>
-                      <td class="text-center">Rp.{{ number_format($order->tax, 0, ',', '.') }}</td>
-                      <td class="text-center">Rp.{{ number_format($order->total, 0, ',', '.') }}</td>
-                      <td class="text-center">
-                        @if ($order->status === 'delivered')
-                          <span class="badge bg-success">Delivered</span>
-                        @elseif ($order->status === 'canceled')
-                          <span class="badge bg-danger">Canceled</span>
-                        @else
-                          <span class="badge bg-warning">Pending</span>
-                        @endif
-                      </td>
-                      <td class="text-center">{{ $order->created_at->format('Y-m-d') }}</td>
-                      <td class="text-center">{{ $order->orderItems->count() }}</td>
-                      <td class="text-center">{{ optional($order->delivered_date)->format('Y-m-d') }}</td>
-                      <td class="text-center">
-                        <a href="#">
-                          <div class="list-icon-function view-icon">
-                            <div class="item eye">
-                              <i class="icon-eye"></i>
-                            </div>
-                          </div>
-                        </a>
-                      </td>
-                    </tr>
-                  @endforeach
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    {{-- Page Header --}}
+    <div class="mb-4">
+      <h2 class="mb-0">Dashboard Toko</h2>
+      <p class="text-muted fs-2 mb-30">Ringkasan aktivitas toko Anda</p>
     </div>
+
+    {{-- Ringkasan Kartu --}}
+    <div class="container-fluid px-0 mb-30">
+      <div class="row gx-3 gy-3">
+        @php
+          $cards = [
+              [
+                  'icon' => 'fa-shopping-bag',
+                  'bg' => 'primary',
+                  'label' => 'Total Pesanan',
+                  'value' => $dashboardDatas->Total,
+              ],
+              [
+                  'icon' => 'fa-money-bill-wave',
+                  'bg' => 'success',
+                  'label' => 'Total Pendapatan',
+                  'value' => 'Rp ' . number_format($dashboardDatas->TotalAmount, 0, ',', '.'),
+              ],
+              [
+                  'icon' => 'fa-hourglass-start',
+                  'bg' => 'warning',
+                  'label' => 'Pesanan Menunggu',
+                  'value' => $dashboardDatas->TotalOrdered,
+              ],
+              [
+                  'icon' => 'fa-wallet',
+                  'bg' => 'info',
+                  'label' => 'Jumlah Menunggu',
+                  'value' => 'Rp ' . number_format($dashboardDatas->TotalOrderedAmount, 0, ',', '.'),
+              ],
+              [
+                  'icon' => 'fa-truck',
+                  'bg' => 'success',
+                  'label' => 'Pesanan Terkirim',
+                  'value' => $dashboardDatas->TotalDelivered,
+              ],
+              [
+                  'icon' => 'fa-coins',
+                  'bg' => 'primary',
+                  'label' => 'Jumlah Terkirim',
+                  'value' => 'Rp ' . number_format($dashboardDatas->TotalDeliveredAmount, 0, ',', '.'),
+              ],
+              [
+                  'icon' => 'fa-times-circle',
+                  'bg' => 'danger',
+                  'label' => 'Pesanan Dibatalkan',
+                  'value' => $dashboardDatas->TotalCanceled,
+              ],
+              [
+                  'icon' => 'fa-dollar-sign',
+                  'bg' => 'secondary',
+                  'label' => 'Jumlah Dibatalkan',
+                  'value' => 'Rp ' . number_format($dashboardDatas->TotalCanceledAmount, 0, ',', '.'),
+              ],
+          ];
+        @endphp
+
+        @foreach ($cards as $card)
+          <div class="col-12 col-md-3 p-2 pb-0">
+            <div class="card h-100 shadow-sm border-0 dashboard-card">
+              <div class="card-body d-flex align-items-center p-4">
+                <div class="icon-box bg-{{ $card['bg'] }} me-3">
+                  <i class="fas {{ $card['icon'] }} text-white fs-3"></i>
+                </div>
+                <div>
+                  <p class="text-muted mb-1">{{ $card['label'] }}</p>
+                  <h6 class="mb-0 fw-bold">{{ $card['value'] }}</h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        @endforeach
+      </div>
+    </div>
+
+    {{-- Grafik Bulanan --}}
+    <div class="card mb-30">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">Pendapatan Bulanan</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap mb-4 gap-5">
+          <div>
+            <p class="">Total</p>
+            <p class="fw-bold">Rp{{ number_format($TotalAmount, 0, ',', '.') }}</p>
+          </div>
+          <div>
+            <p class="">Pending</p>
+            <p class="fw-bold">Rp{{ number_format($TotalOrderedAmount, 0, ',', '.') }}</p>
+          </div>
+          <div>
+            <p class="">Delivered</p>
+            <p class="fw-bold">Rp{{ number_format($TotalDeliveredAmount, 0, ',', '.') }}</p>
+          </div>
+          <div>
+            <p class="">Canceled</p>
+            <p class="fw-bold">Rp{{ number_format($TotalCanceledAmount, 0, ',', '.') }}</p>
+          </div>
+        </div>
+        {{-- **Hanya satu elemen chart** --}}
+        <div id="line-chart-pendapatan" style="height:300px;"></div>
+      </div>
+    </div>
+
+    {{-- Recent Orders (ringkas) --}}
+    <div class="card mb-30">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+        <h5 class="mb-0">Pesanan Terbaru</h5>
+        <a href="{{ route('store.orders.index') }}" class="btn btn-primary fs-4">
+          <i class="fas fa-eye me-1"></i> Lihat Semua
+        </a>
+      </div>
+      <div class="table-responsive p-3">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>No. Pesanan</th>
+              <th>Penerima</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach ($orders as $order)
+              <tr>
+                <td class="fw-bold text-primary">#{{ $order->id }}</td>
+                <td>{{ $order->recipient_name }}</td>
+                <td class="fw-bold">Rp {{ number_format($order->total, 0, ',', '.') }}</td>
+                <td>
+                  @switch($order->status)
+                    @case('ordered')
+                      <span class="badge bg-warning">Dipesan</span>
+                    @break
+
+                    @case('shipped')
+                      <span class="badge bg-info">Dikirim</span>
+                    @break
+
+                    @case('delivered')
+                      <span class="badge bg-success">Terkirim</span>
+                    @break
+
+                    @case('completed')
+                      <span class="badge bg-primary">Selesai</span>
+                    @break
+
+                    @case('canceled')
+                      <span class="badge bg-danger">Dibatalkan</span>
+                    @break
+                  @endswitch
+                </td>
+                <td class="align-middle text-center">
+                  <a href="{{ route('store.orders.show', $order->id) }}"
+                    class="btn btn-outline-primary d-inline-flex align-items-center fs-5 fw-bold"
+                    title="Lihat Detail Pesanan">
+                    <i class="fas fa-eye me-2"></i>
+                    Detail
+                  </a>
+                </td>
+
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
   </div>
 @endsection
 
 @push('scripts')
   <script>
-    (function($) {
-
-      var tfLineChart = (function() {
-        var chartBar = function() {
-          var options = {
-            series: [{
-                name: 'Total',
-                data: [{{ $AmountM }}]
-              },
-              {
-                name: 'Pending',
-                data: [{{ $OrderedAmountM }}]
-              },
-              {
-                name: 'Delivered',
-                data: [{{ $DeliveredAmountM }}]
-              },
-              {
-                name: 'Canceled',
-                data: [{{ $CanceledAmountM }}]
-              }
-            ],
-            chart: {
-              type: 'bar',
-              height: 325,
-              toolbar: {
-                show: false
-              }
+    document.addEventListener('DOMContentLoaded', () => {
+      new ApexCharts(
+        document.querySelector("#line-chart-pendapatan"), {
+          series: [{
+              name: 'Total',
+              data: [{{ $AmountM }}]
             },
-            plotOptions: {
-              bar: {
-                horizontal: false,
-                columnWidth: '10px',
-                endingShape: 'rounded'
-              }
+            {
+              name: 'Pending',
+              data: [{{ $OrderedAmountM }}]
             },
-            dataLabels: {
-              enabled: false
+            {
+              name: 'Delivered',
+              data: [{{ $DeliveredAmountM }}]
             },
-            legend: {
-              show: false
-            },
-            colors: ['#2377FC', '#FFA500', '#078407', '#FF0000'],
-            stroke: {
-              show: false
-            },
-            xaxis: {
-              labels: {
-                style: {
-                  colors: '#212529'
-                }
-              },
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            },
-            yaxis: {
-              show: false
-            },
-            fill: {
-              opacity: 1
-            },
-            tooltip: {
-              y: {
-                formatter: function(val) {
-                  return "Rp. " + val;
-                }
-              }
+            {
+              name: 'Canceled',
+              data: [{{ $CanceledAmountM }}]
             }
-          };
-
-          var chart = new ApexCharts(document.querySelector("#line-chart-8"), options);
-          if (document.querySelector("#line-chart-8")) {
-            chart.render();
+          ],
+          chart: {
+            type: 'bar',
+            height: 300,
+            toolbar: {
+              show: false
+            }
+          },
+          dataLabels: {
+            enabled: false // ← sembunyikan angka di atas batang
+          },
+          plotOptions: {
+            bar: {
+              horizontal: false,
+              columnWidth: '12px',
+              endingShape: 'rounded'
+            }
+          },
+          colors: ['#2377FC', '#FFA500', '#078407', '#FF0000'],
+          xaxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+          },
+          yaxis: {
+            show: false // sdh sembunyikan skala vertikal
+          },
+          tooltip: {
+            y: {
+              formatter: v => 'Rp. ' + v // tooltip tetap menampilkan nominal
+            }
           }
-        };
-
-        return {
-          load: function() {
-            chartBar();
-          }
-        };
-      })();
-
-      jQuery(window).on("load", function() {
-        tfLineChart.load();
-      });
-
-    })(jQuery);
+        }
+      ).render();
+    });
   </script>
 @endpush

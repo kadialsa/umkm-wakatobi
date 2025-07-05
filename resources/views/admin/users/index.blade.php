@@ -1,65 +1,64 @@
 @extends('layouts.admin')
 
 @push('styles')
-  {{-- <style>
+  {{--
+  <style>
     .input-group .form-control {
       border-right: 0;
     }
-
     .input-group .btn {
       border-left: 0;
     }
-
     .input-group .btn i {
       font-size: 1rem;
     }
-  </style> --}}
+  </style>
+  --}}
 @endpush
 
 @section('content')
   <div class="main-content-inner">
     <div class="main-content-wrap">
+
+      {{-- Header & Breadcrumbs --}}
       <div class="flex items-center flex-wrap justify-between gap20 mb-27">
-        <h3>Categories</h3>
+        <h3>Users</h3>
         <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
           <li>
             <a href="{{ route('admin.index') }}">
               <div class="text-tiny">Dashboard</div>
             </a>
           </li>
+          <li><i class="icon-chevron-right"></i></li>
           <li>
-            <i class="icon-chevron-right"></i>
-          </li>
-          <li>
-            <div class="text-tiny">Categories</div>
+            <div class="text-tiny">Users</div>
           </li>
         </ul>
       </div>
 
       <div class="wg-box p-5">
+        {{-- Search & Add New --}}
         <div class="flex items-center justify-between gap10 flex-wrap">
           <div class="wg-filter flex-grow">
-
-            <form class="form-search mb-4" method="GET" action="{{ route('admin.categories') }}">
+            <form class="form-search mb-4" method="GET" action="{{ route('admin.users.index') }}">
               <fieldset class="name">
-                <input type="text" name="name" placeholder="Search category name..." value="{{ request('name') }}"
+                <input type="text" name="search" placeholder="Search user name..." value="{{ request('search') }}"
                   required>
               </fieldset>
               <div class="button-submit">
                 <button type="submit"><i class="icon-search"></i></button>
               </div>
             </form>
-
           </div>
-          <a class="tf-button style-1 w208" href="{{ route('admin.category.add') }}"><i class="icon-plus"></i>Add
-            new</a>
+          <a class="tf-button style-1 w208" href="{{ route('admin.users.create') }}">
+            <i class="icon-plus"></i> Add new
+          </a>
         </div>
 
-
         <div class="wg-table table-all-user">
-          @if (Session::has('status'))
+          @if (session('status'))
             <div class="alert alert-success">
-              <p class="alert alert-success">{{ Session::get('status') }}</p>
+              {{ session('status') }}
             </div>
           @endif
 
@@ -69,40 +68,34 @@
                 <tr>
                   <th>No.</th>
                   <th>Name</th>
-                  <th>Slug</th>
+                  <th>Email</th>
+                  <th>Phone</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                @if ($categories->isEmpty())
+                @if ($users->isEmpty())
                   <tr>
                     <td colspan="4" class="text-center text-dark p-4 fs-4">
-                      Tidak ada kategori yang sesuai dengan pencarian “{{ request('name') }}”.
+                      Tidak ada user yang sesuai dengan pencarian “{{ request('search') }}”.
                     </td>
                   </tr>
                 @else
-                  @foreach ($categories as $category)
+                  @foreach ($users as $user)
                     <tr>
-                      <td>{{ $loop->iteration }}</td>
-                      <td class="pname">
-                        <div class="image">
-                          <img src="{{ asset('uploads/categories/' . $category->image) }}" alt="{{ $category->name }}"
-                            class="image">
-                        </div>
-                        <div class="name">
-                          <a href="#" class="body-title-2">{{ $category->name }}</a>
-                        </div>
-                      </td>
-                      <td>{{ $category->slug }}</td>
+                      <td>{{ $loop->iteration + ($users->currentPage() - 1) * $users->perPage() }}</td>
+                      <td>{{ $user->name }}</td>
+                      <td>{{ $user->email }}</td>
+                      <td>{{ $user->mobile ?? '-' }}</td>
                       <td>
                         <div class="list-icon-function">
-                          <a href="{{ route('admin.category.edit', $category->id) }}">
+                          <a href="{{ route('admin.users.edit', $user->id) }}">
                             <div class="item edit"><i class="icon-edit-3"></i></div>
                           </a>
-                          <form action="{{ route('admin.category.delete', $category->id) }}" method="POST"
-                            class="d-inline">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="item text-danger delete" style="border:none; background:none;">
+                          <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button" class="item text-danger delete" style="border:none; background:none;">
                               <i class="icon-trash-2"></i>
                             </button>
                           </form>
@@ -116,11 +109,13 @@
           </div>
 
           <div class="divider"></div>
+
           <div class="flex items-center justify-between flex-wrap gap10 wgp-pagination">
-            {{ $categories->links('pagination::bootstrap-5') }}
+            {{ $users->links('pagination::bootstrap-5') }}
           </div>
         </div>
       </div>
+
     </div>
   </div>
 @endsection
@@ -130,18 +125,14 @@
     $(function() {
       $('.delete').on('click', function(e) {
         e.preventDefault();
-        var form = $(this).closest('form');
+        const form = $(this).closest('form');
         swal({
           title: "Are you sure?",
-          text: "You want to delete this record?",
+          text: "This will delete the user permanently.",
           icon: "warning",
           buttons: ["No", "Yes"],
           dangerMode: true,
-        }).then(function(result) {
-          if (result) {
-            form.submit();
-          }
-        });
+        }).then(confirmed => confirmed && form.submit());
       });
     });
   </script>

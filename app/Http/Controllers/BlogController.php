@@ -9,10 +9,20 @@ use Illuminate\Support\Str;
 
 class BlogController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $posts = Blog::latest('published_at')->paginate(10);
-        return view('admin.blog.index', compact('posts'));
+        // Ambil keyword pencarian
+        $search = $request->input('search');
+
+        // Query dengan filter judul jika ada keyword
+        $posts = Blog::when($search, function ($q) use ($search) {
+            return $q->where('title', 'like', "%{$search}%");
+        })
+            ->latest('published_at')
+            ->paginate(10)
+            ->appends(['search' => $search]);
+
+        return view('admin.blog.index', compact('posts', 'search'));
     }
 
     public function create()

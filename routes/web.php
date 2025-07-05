@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\OrderTrackingController;
+use App\Http\Controllers\SearchController;
 // use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\Store\OrderController;
@@ -50,7 +52,10 @@ Route::get('/order-confirmation', [CartController::class, 'order_confirmation'])
 Route::get('/contact-us', [HomeController::class, 'contact'])->name('home.contact');
 Route::post('/contact/store', [HomeController::class, 'contact_store'])->name('home.contact.store');
 
-Route::get('/search', [HomeController::class, 'search'])->name('home.search');
+// Route::get('/search', [HomeController::class, 'search'])->name('home.search');
+
+Route::get('/search', [SearchController::class, 'index'])
+    ->name('search');
 
 // Blog
 Route::get('/articles', [HomeController::class, 'articles'])->name('home.articles');
@@ -70,31 +75,44 @@ Route::get('/komship/demo', [LocationController::class, 'demo']);
 
 
 
-// user
+// USER
 Route::middleware(['auth'])->group(function () {
     Route::get('/account-dashboard', [UserController::class, 'index'])->name('user.index');
+
+    // Lihat detail profil
+    Route::get('/account-details', [UserController::class, 'detailsIndex'])
+        ->name('user.details');
+    // Form edit profil
+    Route::get('/account-details/edit', [UserController::class, 'detailsEdit'])
+        ->name('user.details.edit');
+    // Proses update profil
+    Route::put('/account-details', [UserController::class, 'detailsUpdate'])
+        ->name('user.details.update');
+
     Route::get('/account-orders', [UserController::class, 'orders'])->name('user.orders');
     Route::get('/account-order/{order_id}/details', [UserController::class, 'orders_details'])->name('user.order.details');
     Route::put('/account-order/cancel-order', [UserController::class, 'order_cancel'])->name('account.cancel');
 
-    Route::get('/account-address', [AddressController::class, 'index'])->name('user.address');
-
-    Route::get('/account-address/add', [AddressController::class, 'address_add'])->name('user.address.add');
-    Route::post('/account-address/store', [AddressController::class, 'store'])->name('user.address.store');
-
-    Route::post('/user/address', [AddressController::class, 'store'])->name('user.address.store');
-
-    Route::get('/account/address/{id}/edit', [AddressController::class, 'address_edit'])->name('user.address.edit');
-    Route::put('/account/address/{id}', [AddressController::class, 'update'])->name('user.address.update');
-
-    Route::delete('/account/address/{id}', [AddressController::class, 'destroy'])->name('user.address.destroy');
+    // Address
+    Route::get('account-addresses', [AddressController::class, 'index'])
+        ->name('user.address.index');
+    Route::get('account-addresses/create', [AddressController::class, 'create'])
+        ->name('user.address.create');
+    Route::post('account-addresses', [AddressController::class, 'store'])
+        ->name('user.address.store');
+    Route::get('account-addresses/{id}/edit', [AddressController::class, 'edit'])
+        ->name('user.address.edit');
+    Route::put('account-addresses/{id}', [AddressController::class, 'update'])
+        ->name('user.address.update');
+    Route::delete('account-addresses/{id}', [AddressController::class, 'destroy'])
+        ->name('user.address.destroy');
 
     // MIDTRANS
     Route::post('midtrans/notification', [MidtransController::class, 'notificationHandler'])
         ->name('midtrans.notification');
 });
 
-// Store
+// STORE
 Route::middleware(['auth', AuthStore::class])
     ->prefix('store')
     ->name('store.')
@@ -109,7 +127,6 @@ Route::middleware(['auth', AuthStore::class])
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [OrderController::class, 'show'])
             ->name('orders.show');
-
         Route::put('orders/{order_id}/update-status', [OrderController::class, 'updateStatus'])
             ->name('orders.update.status');
 
@@ -122,20 +139,19 @@ Route::middleware(['auth', AuthStore::class])
         // Order Tracking
         Route::post('orders/{order}/trackings', [OrderTrackingController::class, 'store'])->name('orders.trackings.store');
         Route::put('orders/{order}/trackings/{tracking}', [OrderTrackingController::class, 'update'])->name('orders.trackings.update');
+
+        // Profile
+        Route::get('/profile', [StoreController::class, 'profile'])
+            ->name('profile');
+        Route::post('/profile', [StoreController::class, 'updateProfile'])
+            ->name('profile.update');
     });
 
 
 
-// admin
+// ADMIN
 Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-
-    Route::get('/admin/brands', [AdminController::class, 'brands'])->name('admin.brands');
-    Route::get('/admin/brand/add', [AdminController::class, 'add_brand'])->name('admin.brand.add');
-    Route::post('/admin/brand/store', [AdminController::class, 'brand_store'])->name('admin.brand.store');
-    Route::get('/admin/brand/edit/{id}', [AdminController::class, 'brand_edit'])->name('admin.brand.edit');
-    Route::put('/admin/brand/update', [AdminController::class, 'brand_update'])->name('admin.brand.update');
-    Route::delete('/admin/brand/{id}/delete', [AdminController::class, 'brand_delete'])->name('admin.brand.delete');
 
     Route::get('/admin/categories', [AdminController::class, 'categories'])->name('admin.categories');
     Route::get('/admin/category/add', [AdminController::class, 'category_add'])->name('admin.category.add');
@@ -150,24 +166,6 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('/admin/store/{id}/edit', [AdminController::class, 'store_edit'])->name('admin.store.edit');
     Route::put('/admin/store/update', [AdminController::class, 'store_update'])->name('admin.store.update');
     Route::delete('/admin/store/{id}/delete', [AdminController::class, 'store_delete'])->name('admin.store.delete');
-
-    Route::get('/admin/products', [AdminController::class, 'products'])->name('admin.products');
-    Route::get('/admin/product/add', [AdminController::class, 'product_add'])->name('admin.product.add');
-    Route::post('/admin/product/store', [AdminController::class, 'product_store'])->name('admin.product.store');
-    Route::get('/admin/product/{id}/edit', [AdminController::class, 'product_edit'])->name('admin.product.edit');
-    Route::put('/admin/product/update', [AdminController::class, 'product_update'])->name('admin.product.update');
-    Route::delete('/admin/product/{id}/delete', [AdminController::class, 'product_delete'])->name('admin.product.delete');
-
-    Route::get('/admin/coupons', [AdminController::class, 'coupons'])->name('admin.coupons');
-    Route::get('/admin/coupon/add', [AdminController::class, 'coupon_add'])->name('admin.coupon.add');
-    Route::post('/admin/coupon/store', [AdminController::class, 'coupon_store'])->name('admin.coupon.store');
-    Route::get('/admin/coupon/{id}/edit', [AdminController::class, 'coupon_edit'])->name('admin.coupon.edit');
-    Route::put('/admin/coupon/update', [AdminController::class, 'coupon_update'])->name('admin.coupon.update');
-    Route::delete('/admin/coupon/{id}/delete', [AdminController::class, 'coupon_delete'])->name('admin.coupon.delete');
-
-    Route::get('/admin/orders', [AdminController::class, 'orders'])->name('admin.orders');
-    Route::get('/admin/order/{order_id}/details', [AdminController::class, 'order_details'])->name('admin.order.details');
-    Route::put('/admin/order/upated-status', [AdminController::class, 'update_order_status'])->name('admin.order.status.update');
 
     Route::get('/admin/slides', [AdminController::class, 'slides'])->name('admin.slides');
     Route::get('/admin/slide/add', [AdminController::class, 'slide_add'])->name('admin.slide.add');
@@ -195,5 +193,17 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('admin/orders', [OrderController::class, 'index']);
 
     // BLOG
-    Route::resource('blog', BlogController::class);
+    Route::resource('/admin/blog', BlogController::class);
+
+    // USER MANAGEMENT
+    Route::resource('/admin/users', AdminUserController::class)
+        ->names([
+            'index'   => 'admin.users.index',
+            'create'  => 'admin.users.create',
+            'store'   => 'admin.users.store',
+            'show'    => 'admin.users.show',
+            'edit'    => 'admin.users.edit',
+            'update'  => 'admin.users.update',
+            'destroy' => 'admin.users.destroy',
+        ]);
 });

@@ -2,169 +2,126 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Address;
 use App\Models\NewAddress;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AddressController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar alamat milik user.
      */
     public function index()
     {
-        $userId = $userId = Auth::id(); // ambil ID user yang sedang login
-        $addresses = NewAddress::where('user_id', $userId)->get();
+        $addresses = NewAddress::where('user_id', Auth::id())->get();
         return view('user.address', compact('addresses'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Tampilkan form tambah alamat.
      */
     public function create()
     {
-        $addresses = Address::all();
-        return response()->json($addresses);
-    }
-
-    public function getByUser($userId)
-    {
-        $addresses = Address::where('user_id', $userId)->get();
-        return response()->json($addresses);
-    }
-
-
-    // Ambil alamat default dari user
-    public function getDefaultAddress($userId)
-    {
-        $address = Address::where('user_id', $userId)
-            ->where('isdefault', true)
-            ->first();
-
-        return response()->json($address);
-    }
-
-    public function address_add()
-    {
-
         return view('user.address-add');
     }
-    /**
-     * Store a newly created resource in storage.
-     */
 
+    /**
+     * Simpan alamat baru.
+     */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'phone' => 'required',
-            'zip' => 'required',
-            'state' => 'required',
-            'city' => 'required',
-            'address' => 'required',
-            'locality' => 'required',
-            'landmark' => 'required',
-            'country' => 'required', //  penting!
+
+        // dd($request->all());
+
+        $data = $request->validate([
+            'destination_id'    => 'required|integer',
+            'province_name'     => 'required|string|max:100',
+            'city_name'         => 'required|string|max:100',
+            'district_name'     => 'required|string|max:100',
+            'subdistrict_name'  => 'required|string|max:100',
+            'full_address'      => 'required|string|max:500',
+            'zip_code'          => 'required|string|max:10',
+            'phone_number'      => 'required|string|max:20',
+            'recipient_name'    => 'required|string|max:100',
         ]);
 
-        Address::create([
-            'user_id' => Auth::id(),
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'zip' => $request->zip,
-            'state' => $request->state,
-            'city' => $request->city,
-            'address' => $request->address,
-            'locality' => $request->locality,
-            'landmark' => $request->landmark,
-            'country' => $request->country,
+        NewAddress::create([
+            'user_id'        => Auth::id(),
+            'destination_id' => $data['destination_id'],
+            'province'       => $data['province_name'],
+            'city'           => $data['city_name'],
+            'district'       => $data['district_name'],
+            'subdistrict'    => $data['subdistrict_name'],
+            'full_address'   => $data['full_address'],
+            'zip_code'       => $data['zip_code'],
+            'phone'          => $data['phone_number'],
+            'recipient_name' => $data['recipient_name'],
         ]);
 
-        return redirect()->route('user.address')->with('success', 'Address added successfully.');
+        return redirect()->route('user.address.index')
+            ->with('success', 'Alamat berhasil ditambahkan.');
     }
 
-    public function address_edit($id)
+    /**
+     * Tampilkan form edit alamat.
+     */
+    public function edit($id)
     {
-        $address = Address::findOrFail($id);
+        $address = NewAddress::where('user_id', Auth::id())
+            ->findOrFail($id);
+
         return view('user.address-edit', compact('address'));
     }
 
+    /**
+     * Proses simpan perubahan alamat.
+     */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required',
-            'phone' => 'required',
-            'zip' => 'required',
-            'state' => 'required',
-            'city' => 'required',
-            'address' => 'required',
-            'locality' => 'required',
-            'landmark' => 'required',
-            'country' => 'required',
+
+        // dd($request->all());
+
+        $address = NewAddress::where('user_id', Auth::id())
+            ->findOrFail($id);
+
+        $data = $request->validate([
+            'destination_id'    => 'required|integer',
+            'province_name'     => 'required|string|max:100',
+            'city_name'         => 'required|string|max:100',
+            'district_name'     => 'required|string|max:100',
+            'subdistrict_name'  => 'required|string|max:100',
+            'full_address'      => 'required|string|max:500',
+            'zip_code'          => 'required|string|max:10',
+            'phone_number'      => 'required|string|max:20',
+            'recipient_name'    => 'required|string|max:100',
         ]);
 
-        $address = Address::findOrFail($id);
-        $address->update($request->all());
+        $address->update([
+            'destination_id' => $data['destination_id'],
+            'province'       => $data['province_name'],
+            'city'           => $data['city_name'],
+            'district'       => $data['district_name'],
+            'subdistrict'    => $data['subdistrict_name'],
+            'full_address'   => $data['full_address'],
+            'zip_code'       => $data['zip_code'],
+            'phone'          => $data['phone_number'],
+            'recipient_name' => $data['recipient_name'],
+        ]);
 
-        return redirect()->route('user.address')->with('success', 'Address updated successfully.');
+        return redirect()->route('user.address.index')
+            ->with('success', 'Alamat berhasil diubah.');
     }
 
+    /**
+     * Hapus alamat.
+     */
     public function destroy($id)
     {
-        $address = Address::findOrFail($id);
-
-        // Pastikan alamat milik user yang sedang login
-        if ($address->user_id !== Auth::id()) {
-            return redirect()->route('user.address')->with('error', 'Unauthorized action.');
-        }
-
+        $address = NewAddress::where('user_id', Auth::id())
+            ->findOrFail($id);
         $address->delete();
 
-        return redirect()->route('user.address')->with('success', 'Address deleted successfully.');
+        return redirect()->route('user.address.index')
+            ->with('success', 'Alamat berhasil dihapus.');
     }
-
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Address $address)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Address $address)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-
-    // public function update(UpdateAddressRequest $request, Address $address)
-    // {
-    //     //
-    // }
-
-    /**
-     * Remove the specified resource from storage.
-     */
 }
-
-  // $userId = Auth::id(); // ambil ID user yang sedang login
-        // $data = $request->validated(); // ambil data yang sudah divalidasi dari StoreAddressRequest
-
-        // // Set user_id
-        // $data['user_id'] = $userId;
-
-        // // Jika isdefault = true, reset alamat default lain milik user
-        // if (isset($data['isdefault']) && $data['isdefault']) {
-        //     Address::where('user_id', $userId)->update(['isdefault' => false]);
-        // }
-
-        // // Simpan ke database
-        // Address::create($data);

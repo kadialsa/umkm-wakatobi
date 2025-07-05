@@ -110,17 +110,30 @@
     }
   </style>
 
-  <main class="pt-90" style="padding-top:0;">
+  <main class="pt-90">
     <section class="my-account container">
+      <div class="mb-4 pb-4"></div>
       <h2 class="page-title">Detail Pesanan</h2>
       <div class="row">
         {{-- Sidebar akun --}}
-        <div class="col-lg-2">
+        <div class="col-lg-3">
           @include('user.account-nav')
         </div>
 
         {{-- Konten utama --}}
-        <div class="col-lg-10">
+        <div class="col-lg-9 page-content my-account__address">
+
+          {{-- Pesanan tidak ditemukan --}}
+          @if (!$order)
+            <div class="alert alert-warning">
+              <i class="fa fa-exclamation-triangle me-2"></i>
+              Pesanan tidak ditemukan atau sudah dihapus.
+            </div>
+            <a href="{{ route('user.orders') }}" class="btn btn-secondary">
+              <i class="fa fa-arrow-left me-1"></i>Kembali ke Daftar Pesanan
+            </a>
+            @return;
+          @endif
 
           {{-- Ringkasan Pesanan --}}
           @php

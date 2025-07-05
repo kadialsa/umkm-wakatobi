@@ -84,4 +84,14 @@ class User extends Authenticatable
             'id'          // local key on orders
         );
     }
+
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class)->withDefault();
+    }
+
+    public function getAvatarUrlAttribute(): string
+    {
+        return $this->profile->avatar_url;
+    }
 }

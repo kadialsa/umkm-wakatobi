@@ -1,4 +1,15 @@
 @extends('layouts.store')
+
+@push('styles')
+  <style>
+    .form-control {
+      padding: .75rem;
+      font-size: 1.4rem;
+      border: 1px solid #686c6c !important;
+    }
+  </style>
+@endpush
+
 @section('content')
   <div class="main-content-inner">
     <!-- main-content-wrap -->
@@ -15,7 +26,7 @@
             <i class="icon-chevron-right"></i>
           </li>
           <li>
-            <a href="{{ route('admin.products') }}">
+            <a href="{{ route('store.products.index') }}">
               <div class="text-tiny">Products</div>
             </a>
           </li>
@@ -35,8 +46,8 @@
           <fieldset class="name">
             <div class="body-title mb-10">Product name <span class="tf-color-1">*</span>
             </div>
-            <input class="mb-10" type="text" placeholder="Enter product name" name="name" tabindex="0"
-              value="{{ old('name') }}" aria-required="true" required="">
+            <input class="mb-10 form-control" type="text" placeholder="Enter product name" name="name"
+              tabindex="0" value="{{ old('name') }}" aria-required="true" required="">
             <div class="text-tiny">Do not exceed 100 characters when entering the
               product name.</div>
           </fieldset>
@@ -46,8 +57,8 @@
 
           <fieldset class="name">
             <div class="body-title mb-10">Slug <span class="tf-color-1">*</span></div>
-            <input class="mb-10" type="text" placeholder="Enter product slug" name="slug" tabindex="0"
-              value="{{ old('slug') }}" aria-required="true" required="">
+            <input class="mb-10 form-control" type="text" placeholder="Enter product slug" name="slug"
+              tabindex="0" value="{{ old('slug') }}" aria-required="true" required="">
             <div class="text-tiny">Do not exceed 100 characters when entering the
               product name.</div>
           </fieldset>
@@ -166,7 +177,7 @@
           <div class="cols gap22">
             <fieldset class="name">
               <div class="body-title mb-10">Regular Price <span class="tf-color-1">*</span></div>
-              <input class="mb-10" type="text" placeholder="Enter regular price" name="regular_price"
+              <input class="mb-10 form-control" type="text" placeholder="Enter regular price" name="regular_price"
                 tabindex="0" value="{{ old('regular_price') }}" aria-required="true" required="">
             </fieldset>
             @error('regular_price')
@@ -174,8 +185,8 @@
             @enderror
             <fieldset class="name">
               <div class="body-title mb-10">Sale Price <span class="tf-color-1">*</span></div>
-              <input class="mb-10" type="text" placeholder="Enter sale price" name="sale_price" tabindex="0"
-                value="{{ old('sale_price') }}" aria-required="true" required="">
+              <input class="mb-10 form-control" type="text" placeholder="Enter sale price" name="sale_price"
+                tabindex="0" value="{{ old('sale_price') }}" aria-required="true" required="">
             </fieldset>
             @error('sale_price')
               <span class="alert alert-danger text-center">{{ $message }}</span>
@@ -186,7 +197,7 @@
             <fieldset class="name">
               <div class="body-title mb-10">SKU <span class="tf-color-1">*</span>
               </div>
-              <input class="mb-10" type="text" placeholder="Enter SKU" name="SKU" tabindex="0"
+              <input class="mb-10 form-control" type="text" placeholder="Enter SKU" name="SKU" tabindex="0"
                 value="{{ old('SKU') }}" aria-required="true" required="">
             </fieldset>
             @error('SKU')
@@ -196,8 +207,8 @@
             <fieldset class="name">
               <div class="body-title mb-10">Quantity <span class="tf-color-1">*</span>
               </div>
-              <input class="mb-10" type="text" placeholder="Enter quantity" name="quantity" tabindex="0"
-                value="{{ old('quantity') }}" aria-required="true" required="">
+              <input class="mb-10 form-control" type="text" placeholder="Enter quantity" name="quantity"
+                tabindex="0" value="{{ old('quantity') }}" aria-required="true" required="">
             </fieldset>
             @error('quantity')
               <span class="alert alert-danger text-center">{{ $message }}</span>

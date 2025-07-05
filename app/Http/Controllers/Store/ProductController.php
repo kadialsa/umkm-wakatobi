@@ -19,17 +19,27 @@ use Illuminate\Support\Facades\File;
 class ProductController extends Controller
 {
     /**
-     * Display a listing of the owner's products.
+     * Display a listing of the owner's products, with optional search.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $storeId = Auth::user()->store()->first()->id;
+        $storeId = Auth::user()->store->id;
 
-        $products = Product::where('store_id', $storeId)
+        // Mulai query hanya untuk produk milik store ini
+        $query = Product::where('store_id', $storeId);
+
+        // Jika ada input pencarian 'name', filter by nama produk (LIKE)
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->input('name') . '%');
+        }
+
+        // Jalankan paginate dan pertahankan query string (untuk pagination + search)
+        $products = $query
             ->orderBy('created_at', 'DESC')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('store.products', compact('products'));
+        return view('store.products.index', compact('products'));
     }
 
     /**
@@ -40,7 +50,7 @@ class ProductController extends Controller
         $categories = Category::orderBy('name')->get(['id', 'name']);
         $brands     = Brand::orderBy('name')->get(['id', 'name']);
 
-        return view('store.product-create', compact('categories', 'brands'));
+        return view('store.products.create', compact('categories', 'brands'));
     }
 
     /**
@@ -114,7 +124,7 @@ class ProductController extends Controller
         $categories = Category::orderBy('name')->get(['id', 'name']);
         $brands     = Brand::orderBy('name')->get(['id', 'name']);
 
-        return view('store.product-edit', compact('product', 'categories', 'brands'));
+        return view('store.products.edit', compact('product', 'categories', 'brands'));
     }
 
     /**

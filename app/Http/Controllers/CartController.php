@@ -7,6 +7,7 @@ use App\Models\Address;
 use App\Models\NewAddress;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderPayment;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Container\Attributes\Auth as AttributesAuth;
@@ -137,23 +138,23 @@ class CartController extends Controller
 
     public function place_an_order(Request $request)
     {
-        $userId   = Auth::id();
-        $orderIds = [];
+        $userId    = Auth::id();
+        $orderIds  = [];
         $snapTokens = [];
 
-        // --- Validasi dasar untuk kurir & ongkir ---
+        // 1) Validasi ongkir
         $request->validate([
             'shipping_service' => 'required|string',
             'shipping_cost'    => 'required|numeric',
         ]);
 
-        // 1) Tentukan alamat (existing atau baru)
+        // 2) Ambil atau simpan alamat
         if ($request->filled('address_id')) {
             $address = NewAddress::where('user_id', $userId)
-                ->findOrFail($request->input('address_id'));
+                ->findOrFail($request->address_id);
             $isDifferent = false;
         } else {
-            $validated = $request->validate([
+            $v = $request->validate([
                 'destination_id'   => 'required|integer',
                 'province_name'    => 'required|string|max:100',
                 'city_name'        => 'required|string|max:100',
@@ -167,58 +168,49 @@ class CartController extends Controller
 
             $address = NewAddress::create([
                 'user_id'        => $userId,
-                'destination_id' => $validated['destination_id'],
-                'province'       => $validated['province_name'],
-                'city'           => $validated['city_name'],
-                'district'       => $validated['district_name'],
-                'subdistrict'    => $validated['subdistrict_name'],
-                'full_address'   => $validated['full_address'],
-                'zip_code'       => $validated['zip_code'],
-                'phone'          => $validated['phone_number'],
-                'recipient_name' => $validated['recipient_name'],
+                'destination_id' => $v['destination_id'],
+                'province'       => $v['province_name'],
+                'city'           => $v['city_name'],
+                'district'       => $v['district_name'],
+                'subdistrict'    => $v['subdistrict_name'],
+                'full_address'   => $v['full_address'],
+                'zip_code'       => $v['zip_code'],
+                'phone'          => $v['phone_number'],
+                'recipient_name' => $v['recipient_name'],
             ]);
 
-            // Cek lagi
             $isDifferent = true;
         }
 
-        // 2) Buat Order per toko
-        $groups = Cart::instance('cart')
-            ->content()
-            ->groupBy(fn($i) => $i->model->store_id);
-
+        // 3) Buat Order per toko
+        $groups = Cart::instance('cart')->content()->groupBy(fn($i) => $i->model->store_id);
         foreach ($groups as $storeId => $items) {
-            $sub     = $items->sum(fn($i) => $i->price * $i->qty);
-            $taxRate = config('cart.tax') / 100;
-            $tax     = round($sub * $taxRate, 2);
-            $shippingCost = $request->input('shipping_cost');
-            $total = round($sub + $tax + $shippingCost, 2);
+            $sub = $items->sum(fn($i) => $i->price * $i->qty);
+            $tax = round($sub * (config('cart.tax') / 100), 2);
+            $ship = $request->shipping_cost;
+            $total = round($sub + $tax + $ship, 2);
 
             $order = Order::create([
-                'user_id'                => $userId,
-                'store_id'               => $storeId,
-                'subtotal'               => $sub,
-                'discount'               => 0,
-                'tax'                    => $tax,
-                'total'                  => $total,
-                // kurir & ongkir
-                'shipping_service'       => $request->input('shipping_service'),
-                'shipping_cost'          => $request->input('shipping_cost'),
-                // alamat pengiriman
-                'destination_id'         => $address->destination_id,
-                'province'               => $address->province,
-                'city'                   => $address->city,
-                'district'               => $address->district,
-                'subdistrict'            => $address->subdistrict,
-                'full_address'           => $address->full_address,
-                'zip_code'               => $address->zip_code,
-                'phone'                  => $address->phone,
-                'recipient_name'         => $address->recipient_name,
-                // flag alamat berbeda
-                'is_shipping_different'  => $isDifferent,
+                'user_id'               => $userId,
+                'store_id'              => $storeId,
+                'subtotal'              => $sub,
+                'discount'              => 0,
+                'tax'                   => $tax,
+                'total'                 => $total,
+                'shipping_service'      => $request->shipping_service,
+                'shipping_cost'         => $ship,
+                'destination_id'        => $address->destination_id,
+                'province'              => $address->province,
+                'city'                  => $address->city,
+                'district'              => $address->district,
+                'subdistrict'           => $address->subdistrict,
+                'full_address'          => $address->full_address,
+                'zip_code'              => $address->zip_code,
+                'phone'                 => $address->phone,
+                'recipient_name'        => $address->recipient_name,
+                'is_shipping_different' => $isDifferent,
             ]);
 
-            // detail item
             foreach ($items as $item) {
                 OrderItem::create([
                     'order_id'   => $order->id,
@@ -228,7 +220,6 @@ class CartController extends Controller
                 ]);
             }
 
-            // COD transaction
             if ($request->mode === 'cod') {
                 Transaction::create([
                     'user_id'  => $userId,
@@ -240,19 +231,25 @@ class CartController extends Controller
             $orderIds[] = $order->id;
         }
 
-        // 3) Konfigurasi Midtrans
+        // 4) Konfigurasi Midtrans
         Config::$serverKey    = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized  = config('midtrans.is_sanitized');
         Config::$is3ds        = config('midtrans.is_3ds');
 
-        // 4) Generate Snap Token
+        // 5) Generate Snap Token + simpan payment awal
         foreach ($orderIds as $id) {
             $order = Order::findOrFail($id);
+
+            // konsisten dengan parsing: STORE{store}_ORD{order}_{ts}
+            $midOrderId = 'STORE' . $order->store_id
+                . '_ORD' . $order->id
+                . '_'    . now()->timestamp;
+
             $params = [
                 'transaction_details' => [
-                    'order_id'     => 'STORE' . $order->store_id . '_' . $order->id,
-                    'gross_amount' => (int) $order->total,
+                    'order_id'     => $midOrderId,
+                    'gross_amount' => (int)$order->total,
                 ],
                 'customer_details' => [
                     'first_name' => $request->user()->name,
@@ -266,12 +263,22 @@ class CartController extends Controller
                 ],
             ];
 
-            Log::info("Generating Snap Token for Order {$order->id}", $params);
+            Log::info("Generate Snap Token for Order {$order->id}", $params);
+            $snapToken = Snap::getSnapToken($params);
+            $snapTokens[$order->id] = $snapToken;
 
-            $snapTokens[$order->id] = Snap::getSnapToken($params);
+            // simpan payment pending
+            OrderPayment::create([
+                'order_id'           => $order->id,
+                'transaction_id'     => $midOrderId,
+                'snap_token'         => $snapToken,
+                'transaction_status' => 'pending',
+                'fraud_status'       => null,
+                'raw_response'       => json_encode($params),
+            ]);
         }
 
-        // 5) Simpan session & bersihkan cart
+        // 6) Simpan session & clear cart
         Session::put('order_ids',   $orderIds);
         Session::put('snap_tokens', $snapTokens);
         Cart::instance('cart')->destroy();

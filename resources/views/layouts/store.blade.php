@@ -84,7 +84,7 @@
                     <div class="icon">
                       <i class="icon-file-plus"></i>
                     </div>
-                    <div class="text">Order</div>
+                    <div class="text">Orders</div>
                   </a>
                   <ul class="sub-menu">
                     <li class="sub-menu-item">
@@ -96,13 +96,14 @@
                   </ul>
                 </li>
 
-                {{-- <li class="menu-item">
-                  <a href="{{ route('admin.coupons') }}" class="">
-                    <div class="icon"><i class="icon-grid"></i></div>
-                    <div class="text">Coupns</div>
+                <li class="menu-item">
+                  <a href="{{ route('store.profile') }}" class="">
+                    <div class="icon">
+                      <i class="icon-user"></i>
+                    </div>
+                    <div class="text">Profile</div>
                   </a>
-                </li> --}}
-
+                </li>
 
                 <li class="menu-item mt-5">
                   <form method="POST" action="{{ route('logout') }}" id="logout-form">
@@ -125,7 +126,7 @@
           <div class="header-dashboard">
             <div class="wrap">
               <div class="header-left">
-                <a href="index-2.html">
+                <a href="#">
                   <img class="" id="logo_header_mobile" alt=""
                     src="{{ asset('images/logo/logo.png') }}" data-light="{{ asset('images/logo/logo.png') }}"
                     data-dark="{{ asset('images/logo/logo.png') }}" data-width="154px" data-height="52px"
@@ -136,19 +137,6 @@
                 </div>
 
 
-                <form class="form-search flex-grow">
-                  <fieldset class="name">
-                    <input type="text" placeholder="Search here..." class="show-search" id="search-input"
-                      name="name" tabindex="2" value="" aria-required="true" required=""
-                      autocomplete="off">
-                  </fieldset>
-                  <div class="button-submit">
-                    <button class="" type="submit"><i class="icon-search"></i></button>
-                  </div>
-                  <div class="box-content-search">
-                    <ul id="box-content-search"></ul>
-                  </div>
-                </form>
 
               </div>
               <div class="header-grid">
@@ -158,9 +146,13 @@
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton3"
                       data-bs-toggle="dropdown" aria-expanded="false">
                       <span class="header-user wg-user">
-                        <span class="image">
-                          <img src="images/avatar/personal.png" alt="">
+                        <span class="">
+                          <img
+                            src="{{ Auth::user()->store->image ? asset('storage/' . Auth::user()->store->image) : asset('images/avatar/personal.png') }}"
+                            alt="Logo {{ Auth::user()->store->name }}" class="rounded-circle"
+                            style="width:40px; height:40px; object-fit:cover;">
                         </span>
+
                         <span class="flex flex-column">
                           <span class="body-title mb-2">{{ Auth::user()->name }}</span>
                           <span class="text-tiny">{{ Auth::user()->store->name ?? '' }}</span>
@@ -215,162 +207,7 @@
   <script src="{{ asset('js/sweetalert.min.js') }}"></script>
   <script src="{{ asset('js/apexcharts/apexcharts.js') }}"></script>
   <script src="{{ asset('js/main.js') }}"></script>
-  {{-- search --}}
-  <script>
-    $(function() {
-      $("#search-input").on("keyup", function() {
-        var searchQuery = $(this).val();
-        if (searchQuery.length > 2) {
-          $.ajax({
-            type: "GET",
-            url: "{{ route('admin.search') }}",
-            data: {
-              query: searchQuery
-            },
-            dataType: 'json',
-            success: function(data) {
-              $("#box-content-search").html('');
-              $.each(data, function(index, item) {
-                var url = "{{ route('admin.product.edit', ['id' => 'product_id']) }}";
-                var link = url.replace('product_id', item.id);
 
-                $("#box-content-search").append(`
-                                <li>
-                                    <ul>
-                                        <li class="product-item gap14 mb-10">
-                                            <div class="image no-bg">
-                                                <img src="{{ asset('uploads/products/thumbnails') }}/${item.image}" alt="${item.name}">
-                                            </div>
-                                            <div class="flex items-center justify-between gap20 flex-grow">
-                                                <div class="name">
-                                                    <a href="${link}" class="body-text">${item.name}</a>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li class="mb-10">
-                                            <div class="divider"></div>
-                                        </li>
-                                    </ul>
-                                </li>
-                                `);
-              });
-            }
-
-          });
-        }
-      });
-    });
-  </script>
-  {{-- endsearch --}}
-  <script>
-    (function($) {
-
-      var tfLineChart = (function() {
-
-        var chartBar = function() {
-
-          var options = {
-            series: [{
-                name: 'Total',
-                data: [0.00, 0.00, 0.00, 0.00, 0.00, 273.22, 208.12, 0.00, 0.00,
-                  0.00, 0.00, 0.00
-                ]
-              }, {
-                name: 'Pending',
-                data: [0.00, 0.00, 0.00, 0.00, 0.00, 273.22, 208.12, 0.00, 0.00,
-                  0.00, 0.00, 0.00
-                ]
-              },
-              {
-                name: 'Delivered',
-                data: [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
-                  0.00, 0.00
-                ]
-              }, {
-                name: 'Canceled',
-                data: [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
-                  0.00, 0.00
-                ]
-              }
-            ],
-            chart: {
-              type: 'bar',
-              height: 325,
-              toolbar: {
-                show: false,
-              },
-            },
-            plotOptions: {
-              bar: {
-                horizontal: false,
-                columnWidth: '10px',
-                endingShape: 'rounded'
-              },
-            },
-            dataLabels: {
-              enabled: false
-            },
-            legend: {
-              show: false,
-            },
-            colors: ['#2377FC', '#FFA500', '#078407', '#FF0000'],
-            stroke: {
-              show: false,
-            },
-            xaxis: {
-              labels: {
-                style: {
-                  colors: '#212529',
-                },
-              },
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
-                'Oct', 'Nov', 'Dec'
-              ],
-            },
-            yaxis: {
-              show: false,
-            },
-            fill: {
-              opacity: 1
-            },
-            tooltip: {
-              y: {
-                formatter: function(val) {
-                  return "$ " + val + ""
-                }
-              }
-            }
-          };
-
-          chart = new ApexCharts(
-            document.querySelector("#line-chart-8"),
-            options
-          );
-          if ($("#line-chart-8").length > 0) {
-            chart.render();
-          }
-        };
-
-        /* Function ============ */
-        return {
-          init: function() {},
-
-          load: function() {
-            chartBar();
-          },
-          resize: function() {},
-        };
-      })();
-
-      jQuery(document).ready(function() {});
-
-      jQuery(window).on("load", function() {
-        tfLineChart.load();
-      });
-
-      jQuery(window).on("resize", function() {});
-    })(jQuery);
-  </script>
 
   @stack('scripts')
 </body>

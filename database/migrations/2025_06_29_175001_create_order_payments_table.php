@@ -17,9 +17,10 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
             $table->string('transaction_id');        // Midtrans order_id
+            $table->string('snap_token')->nullable(); // token untuk Snap API
             $table->string('transaction_status');   // settlement, capture, pending, etc.
             $table->string('fraud_status')->nullable(); // challenge, accept, deny
-            $table->json('raw_response');           // full payload untuk audit
+            $table->json('raw_response')->nullable()->change();
             $table->timestamps();
         });
     }

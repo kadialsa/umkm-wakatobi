@@ -1,110 +1,81 @@
 @extends('layouts.app')
+
 @section('content')
-    <style>
-        .table> :not(caption)>tr>th {
-            padding: 0.625rem 1.5rem .625rem !important;
-            background-color: #6a6e51 !important;
-        }
+  <main class="pt-90">
+    <div class="mb-4 pb-4"></div>
+    <section class="my-account container">
+      <h2 class="page-title">Daftar Alamat</h2>
+      <div class="row">
+        {{-- Sidebar akun --}}
+        <div class="col-lg-3">
+          @include('user.account-nav')
+        </div>
 
-        .table>tr>td {
-            padding: 0.625rem 1.5rem .625rem !important;
-        }
-
-        .table-bordered> :not(caption)>tr>th,
-        .table-bordered> :not(caption)>tr>td {
-            border-width: 1px 1px;
-            border-color: #6a6e51;
-        }
-
-        .table> :not(caption)>tr>td {
-            padding: .8rem 1rem !important;
-        }
-
-        .bg-success {
-            background-color: #40c710 !important;
-        }
-
-        .bg-danger {
-            background-color: #f44032 !important;
-        }
-
-        .bg-warning {
-            background-color: #f5d700 !important;
-            color: #000;
-        }
-    </style>
-    <main class="pt-90">
-        <div class="mb-4 pb-4"></div>
-        <section class="my-account container">
-            <h2 class="page-title">Addresses</h2>
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="col-lg-2">
-                        @include('user.account-nav')
-                    </div>
-                </div>
-                <div class="col-lg-9">
-                    <div class="page-content my-account__address">
-                        <div class="row">
-                            <div class="col-6">
-                                <p class="notice">The following addresses will be used on the checkout page by default.</p>
-                            </div>
-
-                            @if (session('success'))
-                                <div class="alert alert-success">
-                                    {{ session('success') }}
-                                </div>
-                            @endif
-
-                            <div class="col-6 text-right">
-                                <a href="{{ route('user.address.add') }}" class="btn btn-sm btn-info">Add New</a>
-                            </div>
-                        </div>
-
-                        <div class="my-account__address-list row">
-                            <h5>Shipping Address</h5>
-
-                            @foreach ($addresses as $address)
-                                <div class="my-account__address-item col-md-6">
-                                    <div class="my-account__address-item__title">
-                                        <h5>
-                                            {{ $address->name }}
-                                            @if ($address->isdefault)
-                                                <i class="fa fa-check-circle text-success"></i>
-                                            @endif
-                                        </h5>
-                                        <div style="display: flex; gap: 8px;">
-                                            <a href="{{ route('user.address.edit', $address->id) }}">Edit</a>
-
-                                            <form action="{{ route('user.address.destroy', $address->id) }}" method="POST"
-                                                style="margin: 0;"
-                                                onsubmit="return confirm('Are you sure want to delete this address?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger"
-                                                    style="padding: 4px 10px;">Delete</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                    <div class="my-account__address-item__detail">
-                                        <p>{{ $address->address }}</p>
-                                        <p>{{ $address->locality }}, {{ $address->city }}</p>
-                                        <p>{{ $address->state }}, {{ $address->country }}</p>
-                                        @if ($address->landmark)
-                                            <p>{{ $address->landmark }}</p>
-                                        @endif
-                                        <p>{{ $address->zip }}</p>
-                                        <br>
-                                        <p>Mobile : {{ $address->phone }}</p>
-                                    </div>
-                                </div>
-                                <hr>
-                            @endforeach
-
-                        </div>
-                    </div>
-                </div>
+        {{-- Konten alamat --}}
+        <div class="col-lg-9">
+          <div class="page-content my-account__address">
+            {{-- Header dan tombol Tambah --}}
+            <div class="row mb-3">
+              {{-- <div class="col-6">
+                <p class="notice">Alamat berikut akan digunakan sebagai alamat pengiriman default.</p>
+              </div> --}}
+              {{-- <div class="col-6 text-start">
+                <a href="{{ route('user.address.create') }}" class="btn btn-sm btn-info">
+                  <i class="fa fa-plus-circle me-1"></i>Tambah Alamat
+                </a>
+              </div> --}}
             </div>
-        </section>
-    </main>
+
+            {{-- Flash message --}}
+            @if (session('success'))
+              <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+
+            <div class="row">
+              @forelse($addresses as $addr)
+                <div class="col-md-12 mb-4">
+                  <div class="card shadow-sm h-100">
+                    <div class="card-body d-flex flex-column">
+                      <h5 class="card-title">{{ $addr->recipient_name }}</h5>
+                      <p class="mb-1"><strong>Kode Pos:</strong> {{ $addr->zip_code }}</p>
+                      <p class="mb-3"><strong>Telepon:</strong> {{ $addr->phone }}</p>
+                      <p class="mb-1"><strong></strong> {{ $addr->full_address }}</p>
+
+                      {{-- <p class="mb-1">{{ $addr->subdistrict }}, {{ $addr->district }}</p>
+                      <p class="mb-1">{{ $addr->city }}, {{ $addr->province }}</p> --}}
+
+                      {{-- Tombol Ubah & Hapus di bawah --}}
+                      <div class="mt-3 d-flex justify-content-end gap-2">
+                        <a href="{{ route('user.address.edit', $addr->id) }}" class="btn btn-sm btn-secondary">
+                          <i class="fa fa-edit me-1"></i>Ubah
+                        </a>
+                        <form action="{{ route('user.address.destroy', $addr->id) }}" method="POST"
+                          onsubmit="return confirm('Yakin ingin menghapus alamat ini?');">
+                          @csrf @method('DELETE')
+                          <button class="btn btn-sm btn-danger">
+                            <i class="fa fa-trash me-1"></i>Hapus
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              @empty
+                <div class="col-12">
+                  <p class="text-center">Belum ada alamat tersimpan.</p>
+                </div>
+              @endforelse
+            </div>
+
+            {{-- Pagination --}}
+            @if (method_exists($addresses, 'links'))
+              <div class="d-flex justify-content-center mt-4">
+                {{ $addresses->links('pagination::bootstrap-5') }}
+              </div>
+            @endif
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 @endsection

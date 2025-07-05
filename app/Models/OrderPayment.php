@@ -9,6 +9,7 @@ class OrderPayment extends Model
     protected $fillable = [
         'order_id',
         'transaction_id',
+        'snap_token',
         'transaction_status',
         'fraud_status',
         'raw_response',

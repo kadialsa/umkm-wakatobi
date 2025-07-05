@@ -13,6 +13,7 @@ class Store extends Model
         'name',
         'slug',
         'description',
+        'image',
         'owner_id',
     ];
 

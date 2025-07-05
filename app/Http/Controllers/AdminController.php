@@ -18,6 +18,7 @@ use App\Models\OrderItem;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use App\Models\Address;
+use App\Models\OrderPayment;
 use App\Models\Store;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -27,41 +28,78 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $orders = Order::orderBy('created_at', 'DESC')->get()->take(10);
-        $dashboardDatas = DB::select("Select sum(total) As TotalAmount,
-                                    sum(if(status='ordered',total,0)) As TotalOrderedAmount,
-                                    sum(if(status='delivered',total,0)) As TotalDeliveredAmount,
-                                    sum(if(status='canceled',total,0)) As TotalCanceledAmount,
-                                    Count(*) As Total,
-                                    sum(if(status='ordered',1,0)) As TotalOrdered,
-                                    sum(if(status='delivered',1,0)) As TotalDelivered,
-                                    sum(if(status='canceled',1,0)) As TotalCanceled
-                                    From Orders ");
+        // 1) Hitung semua entitas
+        $storeCount     = Store::count();
+        $userCount     = User::where('utype', 'USR')->count();
+        $orderCount     = Order::count();
+        $productCount   = Product::count();
+        $categoryCount  = Category::count();
+        $paymentCount   = OrderPayment::count();
 
-        $monthlyDatas = DB::select("SELECT M.id As MonthNo, M.name As MonthName,
-                                IFNULL(D.TotalAmount,0) As TotalAmount,
-                                IFNULL(D.TotalOrderedAmount,0) AS TotalOrderedAmount,
-                                IFNULL(D.TotalDeliveredAmount,0) As TotalDeliveredAmount,
-                                IFNULL(D.TotalCanceledAmount,0) As TotalCanceledAmount FROM month_names M
-                                LEFT JOIN (SELECT DATE_FORMAT(created_at, '%b') As MonthName,
-                                MONTH(created_at) As MOnthNo,
-                                sum(total) As TotalAmount,
-                                sum(if(status='ordered',total,0)) As TotalOrderedAmount,
-                                sum(if(status='delivered',total,0)) As TotalDeliveredAmount,
-                                sum(if(status='canceled',total,0)) As TotalCanceledAmount
-                                From Orders WHERE YEAR(created_at)=YEAR(NOW()) GROUP BY YEAR(created_at), MONTH(created_at), DATE_FORMAT(created_at, '%b')
-                                Order By MONTH(created_at)) D On D.MonthNo=M.id");
+        // 2) 10 order terbaru
+        $orders = Order::withCount('orderItems')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
 
-        $AmountM = implode(',', collect($monthlyDatas)->pluck('TotalAmount')->toArray());
-        $OrderedAmountM = implode(',', collect($monthlyDatas)->pluck('TotalOrderedAmount')->toArray());
-        $DeliveredAmountM = implode(',', collect($monthlyDatas)->pluck('TotalDeliveredAmount')->toArray());
-        $CanceledAmountM = implode(',', collect($monthlyDatas)->pluck('TotalCancelededAmount')->toArray());
-        $TotalAmount = collect($monthlyDatas)->sum('TotalAmount');
-        $TotalOrderedAmount = collect($monthlyDatas)->sum('TotalOrderedAmount');
-        $TotalDeliveredAmount = collect($monthlyDatas)->sum('TotalDeliveredAmount');
-        $TotalCanceledAmount = collect($monthlyDatas)->sum('TotalCanceledAmount');
+        // 3) Ringkasan totals per status
+        $dashboardDatas = DB::table('orders')
+            ->selectRaw(<<<SQL
+                SUM(total) AS TotalAmount,
+                SUM(CASE WHEN status = 'ordered'   THEN total ELSE 0 END) AS TotalOrderedAmount,
+                SUM(CASE WHEN status = 'delivered' THEN total ELSE 0 END) AS TotalDeliveredAmount,
+                SUM(CASE WHEN status = 'canceled'  THEN total ELSE 0 END) AS TotalCanceledAmount,
+                COUNT(*) AS Total,
+                SUM(CASE WHEN status = 'ordered'   THEN 1 ELSE 0 END) AS TotalOrdered,
+                SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) AS TotalDelivered,
+                SUM(CASE WHEN status = 'canceled'  THEN 1 ELSE 0 END) AS TotalCanceled
+            SQL)
+            ->first();
+
+        // 4) Bulanan YTD
+        $monthlySub = DB::table('orders')
+            ->selectRaw(<<<SQL
+                MONTH(created_at)   AS MonthNo,
+                DATE_FORMAT(created_at,'%b') AS MonthName,
+                SUM(total)          AS TotalAmount,
+                SUM(CASE WHEN status='ordered'   THEN total ELSE 0 END) AS TotalOrderedAmount,
+                SUM(CASE WHEN status='delivered' THEN total ELSE 0 END) AS TotalDeliveredAmount,
+                SUM(CASE WHEN status='canceled'  THEN total ELSE 0 END) AS TotalCanceledAmount
+            SQL)
+            ->whereYear('created_at', now()->year)
+            ->groupBy('MonthNo', 'MonthName');
+
+        $monthlyDatas = DB::table('month_names AS M')
+            ->leftJoinSub($monthlySub, 'D', 'D.MonthNo', 'M.id')
+            ->selectRaw(<<<SQL
+                M.id   AS MonthNo,
+                M.name AS MonthName,
+                COALESCE(D.TotalAmount,0)          AS TotalAmount,
+                COALESCE(D.TotalOrderedAmount,0)   AS TotalOrderedAmount,
+                COALESCE(D.TotalDeliveredAmount,0) AS TotalDeliveredAmount,
+                COALESCE(D.TotalCanceledAmount,0)  AS TotalCanceledAmount
+            SQL)
+            ->get();
+
+        // 5) Seri chart
+        $AmountM          = $monthlyDatas->pluck('TotalAmount')->implode(',');
+        $OrderedAmountM   = $monthlyDatas->pluck('TotalOrderedAmount')->implode(',');
+        $DeliveredAmountM = $monthlyDatas->pluck('TotalDeliveredAmount')->implode(',');
+        $CanceledAmountM  = $monthlyDatas->pluck('TotalCanceledAmount')->implode(',');
+
+        // 6) Totals YTD
+        $TotalAmount          = $monthlyDatas->sum('TotalAmount');
+        $TotalOrderedAmount   = $monthlyDatas->sum('TotalOrderedAmount');
+        $TotalDeliveredAmount = $monthlyDatas->sum('TotalDeliveredAmount');
+        $TotalCanceledAmount  = $monthlyDatas->sum('TotalCanceledAmount');
 
         return view('admin.index', compact(
+            'storeCount',
+            'userCount',
+            'orderCount',
+            'productCount',
+            'categoryCount',
+            'paymentCount',
             'orders',
             'dashboardDatas',
             'AmountM',
@@ -171,9 +209,22 @@ class AdminController extends Controller
 
     // category
 
-    public function categories()
+    public function categories(Request $request)
     {
-        $categories = Category::orderBy('id', 'DESC')->paginate(10);
+        // 1) Ambil query builder
+        $query = Category::query();
+
+        // 2) Jika ada parameter `name`, filter dengan LIKE
+        if ($search = $request->input('name')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        // 3) Paginate dan sertakan querystring supaya `?name=...` tetap ada di pagination links
+        $categories = $query
+            ->orderBy('id', 'DESC')
+            ->paginate(10)
+            ->appends($request->only('name'));
+
         return view('admin.categories', compact('categories'));
     }
 
@@ -786,11 +837,23 @@ class AdminController extends Controller
         return redirect()->route('admin.address')->with('success', 'Address deleted successfully.');
     }
 
-    public function stores()
+    public function stores(Request $request)
     {
-        $stores = Store::orderBy('created_at', 'DESC')->paginate(12);
-        return view('admin.stores', compact('stores'));
+        // Ambil query pencarian
+        $q = $request->input('name');
+
+        // Jika ada q, filter by name like %q%, lalu paginate
+        $stores = Store::when($q, function ($builder) use ($q) {
+            return $builder->where('name', 'like', "%{$q}%");
+        })
+            ->orderBy('created_at', 'DESC')
+            ->paginate(12)
+            // biar query string 'name' ikut di pagination links
+            ->appends(['name' => $q]);
+
+        return view('admin.stores', compact('stores', 'q'));
     }
+
 
     public function store_add()
     {
