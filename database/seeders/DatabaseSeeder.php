@@ -16,11 +16,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             MonthSeeder::class,
-            // CategorySeeder::class,
-            // AddressSeeder::class,
-            // StoreSeeder::class,
-            // ProductSeeder::class,
-            // SlideSeeder::class,
+            CategorySeeder::class,
+            AddressSeeder::class,
+            StoreSeeder::class,
+            ProductSeeder::class,
+            SlideSeeder::class,
         ]);
         // User::factory(10)->create();
 
