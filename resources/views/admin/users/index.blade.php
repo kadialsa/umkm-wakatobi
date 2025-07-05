@@ -69,6 +69,7 @@
                   <th>No.</th>
                   <th>Name</th>
                   <th>Email</th>
+                  <th>Role</th>
                   <th>Phone</th>
                   <th>Action</th>
                 </tr>
@@ -86,6 +87,25 @@
                       <td>{{ $loop->iteration + ($users->currentPage() - 1) * $users->perPage() }}</td>
                       <td>{{ $user->name }}</td>
                       <td>{{ $user->email }}</td>
+                      <td>
+                        @switch($user->utype)
+                          @case('ADM')
+                            Administrator
+                          @break
+
+                          @case('STR')
+                            Pemilik Toko
+                          @break
+
+                          @case('USR')
+                            Pelanggan
+                          @break
+
+                          @default
+                            —
+                        @endswitch
+                      </td>
+
                       <td>{{ $user->mobile ?? '-' }}</td>
                       <td>
                         <div class="list-icon-function">

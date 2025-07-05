@@ -13,11 +13,17 @@ class UserController extends Controller
     {
         $search = $request->get('search');
 
-        $users = User::where('utype', 'USR')
-            ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
+        $ // 2) Bangun query: hanya USR & ADM
+        $users = User::whereIn('utype', ['USR', 'ADM'])
+            // 3) Jika ada cari, filter by name
+            ->when($search, function ($q, $search) {
+                $q->where('name', 'like', "%{$search}%");
+            })
+            // 4) Urutkan terbaru dulu
             ->orderBy('id', 'DESC')
+            // 5) Paginate + pertahankan ?search=…
             ->paginate(10)
-            ->withQueryString(); // agar ?search=… dipertahankan di pagination links
+            ->withQueryString();
 
         return view('admin.users.index', compact('users', 'search'));
     }
