@@ -65,7 +65,7 @@
                     <tr>
                       <td>{{ $loop->iteration + ($stores->currentPage() - 1) * $stores->perPage() }}</td>
                       <td class="pname d-flex align-items-center">
-                        <img src="{{ asset('uploads/stores/' . $store->image) }}" alt="{{ $store->name }}" class="me-2"
+                        <img src="{{ asset('storage/' . $store->image) }}" alt="{{ $store->name }}" class="me-2"
                           style="width:32px;height:32px;object-fit:cover;border-radius:4px;">
                         <span>{{ $store->name }}</span>
                       </td>

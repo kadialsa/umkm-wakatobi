@@ -60,7 +60,7 @@
               {{-- Preview gambar awal --}}
               <div class="item" id="imgpreview">
                 @if ($store->image)
-                  <img src="{{ asset('uploads/stores/' . $store->image) }}" class="effect8" alt="{{ $store->name }}"
+                  <img src="{{ asset('storage/' . $store->image) }}" class="effect8" alt="{{ $store->name }}"
                     style="max-height: 124px;">
                 @endif
               </div>

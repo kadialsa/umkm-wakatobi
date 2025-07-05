@@ -23,6 +23,7 @@ use App\Models\Store;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -879,52 +880,62 @@ class AdminController extends Controller
     public function store_store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'slug' => 'required|unique:stores,slug',
-            'image' => 'nullable|mimes:jpg,jpeg,png|max:2048',
-            'description' => 'nullable',
+            'name'         => 'required',
+            'slug'         => 'required|unique:stores,slug',
+            'image'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'description'  => 'nullable',
 
-            'owner_name' => 'required|string|max:255',
-            'owner_email' => 'required|email|unique:users,email',
+            'owner_name'   => 'required|string|max:255',
+            'owner_email'  => 'required|email|unique:users,email',
             'owner_mobile' => 'required|string|unique:users,mobile',
             'owner_password' => 'required|string|min:6',
         ]);
 
         DB::beginTransaction();
         try {
-            // Simpan User
-            $user = new User();
-            $user->name = $request->owner_name;
-            $user->email = $request->owner_email;
-            $user->mobile = $request->owner_mobile;
-            $user->password = Hash::make($request->owner_password);
-            $user->utype = 'STR';
-            $user->save();
+            // 1) Simpan User (owner)
+            $user = User::create([
+                'name'     => $request->owner_name,
+                'email'    => $request->owner_email,
+                'mobile'   => $request->owner_mobile,
+                'password' => Hash::make($request->owner_password),
+                'utype'    => 'STR',
+            ]);
 
-            // Simpan Store
-            $store = new Store();
-            $store->name = $request->name;
-            $store->slug = Str::slug($request->slug);
-            $store->description = $request->description;
-            $store->owner_id = $user->id;
+            // 2) Siapkan data Store
+            $store = new Store([
+                'name'        => $request->name,
+                'slug'        => Str::slug($request->slug),
+                'description' => $request->description,
+                'owner_id'    => $user->id,
+            ]);
 
+            // 3) Handle upload image dengan Storage::store()
             if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $file_extention = $image->extension();
-                $file_name = Carbon::now()->timestamp . '.' . $file_extention;
-                $this->GenerateStoreThumbnailImage($image, $file_name);
-                $store->image = $file_name;
+                // (opsional) hapus file lama jika ada, misal:
+                // Storage::disk('public')->delete($store->image);
+
+                // simpan file ke storage/app/public/stores/...
+                $store->image = $request
+                    ->file('image')
+                    ->store('stores', 'public');
             }
 
+            // 4) Simpan store
             $store->save();
 
             DB::commit();
-            return redirect()->route('admin.stores')->with('status', 'Store and owner added successfully!');
+            return redirect()
+                ->route('admin.stores')
+                ->with('status', 'Store and owner added successfully!');
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Something went wrong: ' . $e->getMessage())->withInput();
+            return back()
+                ->with('error', 'Something went wrong: ' . $e->getMessage())
+                ->withInput();
         }
     }
+
 
     public function store_edit($id)
     {
@@ -937,55 +948,60 @@ class AdminController extends Controller
     public function store_update(Request $request)
     {
         $request->validate([
-            'id' => 'required|exists:stores,id',
-            'name' => 'required',
-            'slug' => 'required|unique:stores,slug,' . $request->id,
-            'image' => 'nullable|mimes:jpg,jpeg,png|max:2048',
-            'description' => 'nullable',
+            'id'            => 'required|exists:stores,id',
+            'name'          => 'required|string|max:255',
+            'slug'          => 'required|unique:stores,slug,' . $request->id,
+            'image'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'description'   => 'nullable|string',
 
-            'owner_name' => 'required|string|max:255',
-            'owner_email' => 'required|email|unique:users,email,' . $request->owner_id,
-            'owner_mobile' => 'required|string|unique:users,mobile,' . $request->owner_id,
+            'owner_name'    => 'required|string|max:255',
+            'owner_email'   => 'required|email|unique:users,email,' . $request->owner_id,
+            'owner_mobile'  => 'required|string|unique:users,mobile,' . $request->owner_id,
             'owner_password' => 'nullable|string|min:6',
         ]);
 
         DB::beginTransaction();
         try {
+            // 1. Ambil store & owner
             $store = Store::findOrFail($request->id);
-            $store->name = $request->name;
-            $store->slug = Str::slug($request->slug);
+            $owner = User::findOrFail($store->owner_id);
+
+            // 2. Update fields dasar store
+            $store->name        = $request->name;
+            $store->slug        = Str::slug($request->slug);
             $store->description = $request->description;
 
-            // Update Image
+            // 3. Handle image upload/replace
             if ($request->hasFile('image')) {
-                if ($store->image && File::exists(public_path('uploads/stores/' . $store->image))) {
-                    File::delete(public_path('uploads/stores/' . $store->image));
+                // hapus file lama jika ada
+                if ($store->image) {
+                    Storage::disk('public')->delete($store->image);
                 }
-
-                $image = $request->file('image');
-                $file_extention = $image->extension();
-                $file_name = Carbon::now()->timestamp . '.' . $file_extention;
-                $this->GenerateStoreThumbnailImage($image, $file_name);
-                $store->image = $file_name;
+                // simpan file baru ke storage/app/public/stores/...
+                $store->image = $request->file('image')
+                    ->store('stores', 'public');
             }
 
             $store->save();
 
-            // Update Owner
-            $owner = User::findOrFail($store->owner_id);
-            $owner->name = $request->owner_name;
-            $owner->email = $request->owner_email;
+            // 4. Update owner (user)
+            $owner->name   = $request->owner_name;
+            $owner->email  = $request->owner_email;
             $owner->mobile = $request->owner_mobile;
-            if ($request->owner_password) {
+            if ($request->filled('owner_password')) {
                 $owner->password = Hash::make($request->owner_password);
             }
             $owner->save();
 
             DB::commit();
-            return redirect()->route('admin.stores')->with('status', 'Store and owner updated successfully!');
+            return redirect()
+                ->route('admin.stores')
+                ->with('status', 'Store dan owner berhasil diperbarui!');
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Something went wrong: ' . $e->getMessage())->withInput();
+            return back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
