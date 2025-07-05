@@ -13,7 +13,7 @@ class UserController extends Controller
     {
         $search = $request->get('search');
 
-        $ // 2) Bangun query: hanya USR & ADM
+        // 2) Bangun query: hanya USR & ADM
         $users = User::whereIn('utype', ['USR', 'ADM'])
             // 3) Jika ada cari, filter by name
             ->when($search, function ($q, $search) {
