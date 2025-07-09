@@ -45,32 +45,21 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        // Pastikan order milik store ini
-        if ($order->store_id !== Auth::user()->store()->first()->id) {
-            abort(403);
-        }
+        $this->authorize('view', $order);
 
-        // Load semua relasi yang diperlukan, termasuk payments
-        // In OrderController@show
         $order->load(['user', 'orderItems.product', 'payments', 'trackings']);
-
         return view('store.orders.show', compact('order'));
     }
 
 
     protected function guardOrder(Order $order)
     {
-        if ($order->store_id !== Auth::user()->store()->first()->id) {
-            abort(403);
-        }
+        $this->authorize('view', $order);
     }
 
     public function ship(Order $order)
     {
-        // Pastikan order milik store
-        if ($order->store_id !== Auth::user()->store()->first()->id) {
-            abort(403);
-        }
+        $this->authorize('view', $order);
 
         if ($order->status !== 'ordered') {
             return back()->with('error', 'Hanya order dengan status "ordered" yang bisa dikirim.');
