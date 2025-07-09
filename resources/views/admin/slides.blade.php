@@ -49,7 +49,7 @@
           <table class="table table-striped table-bordered mb-0">
             <thead>
               <tr>
-                <th>#</th>
+                <th>No.</th>
                 <th>Gambar</th>
                 <th>Tagline</th>
                 <th>Judul</th>
@@ -68,7 +68,7 @@
               @else
                 @foreach ($slides as $slide)
                   <tr>
-                    <td>{{ $slide->id }}</td>
+                    <td>{{ $loop->iteration }}</td>
                     <td>
                       <img src="{{ asset('uploads/slides/' . $slide->image) }}" alt="{{ $slide->title }}"
                         style="height:50px; object-fit:cover;">

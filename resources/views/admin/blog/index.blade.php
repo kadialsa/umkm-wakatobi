@@ -46,7 +46,7 @@
           <table class="table table-striped table-bordered">
             <thead>
               <tr>
-                <th>#</th>
+                <th>No.</th>
                 <th>Image</th>
                 <th>Title</th>
                 <th>Published</th>
@@ -63,7 +63,7 @@
               @else
                 @foreach ($posts as $post)
                   <tr>
-                    <td>{{ $post->id }}</td>
+                    <td>{{ $loop->iteration }}</td>
                     <td>
                       @if ($post->image)
                         <img src="{{ asset('storage/' . $post->image) }}" class="img-fluid rounded"

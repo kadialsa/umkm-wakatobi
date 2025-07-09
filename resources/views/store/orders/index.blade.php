@@ -47,7 +47,7 @@
         <table class="table table-striped table-bordered mb-0">
           <thead class="table-light">
             <tr>
-              <th>#</th>
+              <th>No.</th>
               <th>Tanggal</th>
               <th>Pelanggan</th>
               <th>Total</th>
@@ -67,7 +67,7 @@
                 ];
               @endphp
               <tr>
-                <td>{{ $order->id }}</td>
+                <td>{{ $loop->iteration }}</td>
                 <td>{{ $order->created_at->format('d M Y, H:i') }}</td>
                 <td>{{ $order->user->name ?? $order->recipient_name }}</td>
                 <td>@rupiahSymbol($order->total)</td>

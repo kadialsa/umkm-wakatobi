@@ -44,7 +44,7 @@
                     <table class="table table-striped table-bordered">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>No.</th>
                                 <th>Name</th>
                                 <th>Price</th>
                                 <th>SalePrice</th>
@@ -60,7 +60,7 @@
                         <tbody>
                             @foreach ($products as $product)
                                 <tr>
-                                    <td>{{ $product->id }}</td>
+                                    <td>{{ $loop->iteration }}</td>
                                     <td class="pname">
                                         <div class="image">
                                             <img src="{{ asset('uploads/products/thumbnails') }}/{{ $product->image }}"
