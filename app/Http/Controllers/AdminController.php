@@ -258,8 +258,8 @@ class AdminController extends Controller
     {
         $destinationPath = public_path('uploads/categories');
         $img = Image::read($image->path());
-        $img->cover(124, 124, "top");
-        $img->resize(124, 124, function ($constraint) {
+        $img->cover(800, 800, "top");
+        $img->resize(800, 800, function ($constraint) {
             $constraint->aspectRatio();
         })->save($destinationPath . '/' . $imageName);
     }

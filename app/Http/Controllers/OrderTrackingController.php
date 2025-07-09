@@ -14,10 +14,13 @@ class OrderTrackingController extends Controller
      */
     public function store(Request $request, Order $order)
     {
+
+        $this->authorize('view', $order);
+
         // 1) Authorize store
-        if ($order->store_id !== Auth::user()->store()->first()->id) {
-            abort(403);
-        }
+        // if ($order->store_id !== Auth::user()->store()->first()->id) {
+        //     abort(403);
+        // }
 
         // 2) Validate
         $data = $request->validate([
@@ -41,12 +44,14 @@ class OrderTrackingController extends Controller
     public function update(Request $request, Order $order, OrderTracking $tracking)
     {
         // 1) Authorize store & belonging
-        if (
-            $order->store_id !== Auth::user()->store()->first()->id
-            || $tracking->order_id !== $order->id
-        ) {
-            abort(403);
-        }
+        // if (
+        //     $order->store_id !== Auth::user()->store()->first()->id
+        //     || $tracking->order_id !== $order->id
+        // ) {
+        //     abort(403);
+        // }
+
+        $this->authorize('view', $order);
 
         // 2) Validate
         $data = $request->validate([
