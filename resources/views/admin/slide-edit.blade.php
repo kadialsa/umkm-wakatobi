@@ -4,7 +4,7 @@
     <!-- main-content-wrap -->
     <div class="main-content-wrap">
         <div class="flex items-center flex-wrap justify-between gap20 mb-27">
-            <h3>Edit Slide</h3>
+            <h3>Edit Slider</h3>
             <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                 <li>
                     <a href="{{ route('admin.index') }}">
@@ -23,7 +23,7 @@
                     <i class="icon-chevron-right"></i>
                 </li>
                 <li>
-                    <div class="text-tiny">Edit Slide</div>
+                    <div class="text-tiny">Edit Slider</div>
                 </li>
             </ul>
         </div>

@@ -180,7 +180,7 @@
                 <li class="menu-item">
                   <a href="{{ route('admin.slides') }}" class="">
                     <div class="icon"><i class="icon-image"></i></div>
-                    <div class="text">Slides</div>
+                    <div class="text">Sliders</div>
                   </a>
                 </li>
 
