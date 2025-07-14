@@ -4,35 +4,53 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- CSRF Token -->
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
+  <!-- Important Meta Tags -->
   <title>UMKM WAKATOBI</title>
-  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-  <meta name="author" content="SUKARDIN" />
+  <meta name="description" content="Portal UMKM Kabupaten Wakatobi">
+  <meta name="author" content="SUKARDIN">
 
-  <!-- Favicon dengan cache busting -->
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=2">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=2">
-  <link rel="manifest" href="/site.webmanifest?v=2">
-  <link rel="mask-icon" href="/safari-pinned-tab.svg?v=2" color="#5bbad5">
-  <link rel="shortcut icon" href="{{ asset('images/favicon-umkm.ico') }}?v=2">
-  <meta name="msapplication-TileColor" content="#da532c">
+  <!-- Cache Control for Google -->
+  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="expires" content="0">
+
+  <!-- ========== FAVICON SOLUTION ========== -->
+  <!-- Main ICO -->
+  <link rel="icon" href="https://www.umkmwakatobi.site/images/favicon-umkm.ico?v=3" type="image/x-icon">
+  <link rel="shortcut icon" href="https://www.umkmwakatobi.site/images/favicon-umkm.ico?v=3" type="image/x-icon">
+
+  <!-- Recommended PNG Formats -->
+  <link rel="icon" type="image/png" sizes="192x192"
+    href="https://www.umkmwakatobi.site/images/android-chrome-192x192.png?v=3">
+  <link rel="icon" type="image/png" sizes="512x512"
+    href="https://www.umkmwakatobi.site/images/android-chrome-512x512.png?v=3">
+  <link rel="icon" type="image/png" sizes="32x32"
+    href="https://www.umkmwakatobi.site/images/favicon-32x32.png?v=3">
+  <link rel="icon" type="image/png" sizes="16x16"
+    href="https://www.umkmwakatobi.site/images/favicon-16x16.png?v=3">
+
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="https://www.umkmwakatobi.site/images/apple-touch-icon.png?v=3">
+
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="https://www.umkmwakatobi.site/images/site.webmanifest?v=3">
+
+  <!-- Microsoft Application -->
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="https://www.umkmwakatobi.site/images/mstile-144x144.png?v=3">
   <meta name="theme-color" content="#ffffff">
 
-  <!-- Web Manifest -->
-  <link rel="manifest" href="{{ asset('images/site.webmanifest') }}">
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://www.umkmwakatobi.site/" />
 
+  <!-- ========== CSS & FONTS ========== -->
   <link rel="preconnect" href="https://fonts.gstatic.com/">
-
   <link rel="stylesheet" href="{{ asset('assets/css/plugins/swiper.min.css') }}" type="text/css" />
   <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" type="text/css" />
   <link rel="stylesheet" type="text/css" href="{{ asset('css/sweetalert.min.css') }}">
-
   <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}" type="text/css" />
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
     crossorigin="anonymous" referrerpolicy="no-referrer">
