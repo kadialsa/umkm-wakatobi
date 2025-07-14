@@ -12,16 +12,15 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
   <meta name="author" content="SUKARDIN" />
 
-  <!-- Favicon -->
-  <link rel="icon" href="{{ asset('images/favicon-umkm.ico') }}" type="image/x-icon">
-  <link rel="shortcut icon" href="{{ asset('images/favicon-umkm.ico') }}" type="image/x-icon">
-
-  <!-- For modern browsers -->
-  <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}">
-
-  <!-- For Apple devices -->
-  <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
+  <!-- Favicon dengan cache busting -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=2">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=2">
+  <link rel="manifest" href="/site.webmanifest?v=2">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg?v=2" color="#5bbad5">
+  <link rel="shortcut icon" href="{{ asset('images/favicon-umkm.ico') }}?v=2">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
 
   <!-- Web Manifest -->
   <link rel="manifest" href="{{ asset('images/site.webmanifest') }}">
