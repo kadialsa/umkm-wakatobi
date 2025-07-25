@@ -228,19 +228,7 @@
           </div>
 
           <div class="cols gap22">
-            <fieldset class="name">
-              <div class="body-title mb-10">Stock</div>
-              <div class="select mb-10">
-                <select class="" name="stock_status">
-                  <option value="instock"{{ $product->stock_status == 'instock' ? 'selected' : '' }}>InStock</option>
-                  <option value="outofstock"{{ $product->stock_status == 'outofstock' ? 'selected' : '' }}>Out of Stock
-                  </option>
-                </select>
-              </div>
-            </fieldset>
-            @error('stock_status')
-              <span class="alert alert-danger text-center">{{ $message }}</span>
-            @enderror
+
             <fieldset class="name">
               <div class="body-title mb-10">Featured</div>
               <div class="select mb-10">

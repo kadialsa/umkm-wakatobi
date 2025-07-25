@@ -9,7 +9,7 @@ use App\Models\Order;
 use App\Models\OrderPayment;
 use Illuminate\Support\Facades\Log;
 
-class MidtransController extends Controller
+class MidtransControllerCopy extends Controller
 {
     public function notificationHandler(Request $request)
     {
@@ -19,22 +19,21 @@ class MidtransController extends Controller
         Config::$isSanitized  = config('midtrans.is_sanitized');
         Config::$is3ds        = config('midtrans.is_3ds');
 
-        // 2) Ambil payload
+        // 2) Ambil payload Notifikasi
         $notif = new MidNotif();
         Log::info('Midtrans Notification', (array) $notif);
 
-        $midOrderId  = $notif->order_id;
+        $midOrderId  = $notif->order_id;  // e.g. STORE7_ORD42_1651691524
         $trxStatus   = $notif->transaction_status;
         $fraudStatus = $notif->fraud_status ?? null;
 
-        // 3) Extract Order ID
+        // Ambil orderId dengan regex:
         if (! preg_match('/_ORD(\d+)_/', $midOrderId, $m)) {
             Log::error("Invalid midOrderId format: $midOrderId");
             return response()->json(['error' => 'bad order id'], 400);
         }
         $orderId = (int)$m[1];
 
-        // 4) Update Order & simpan payment
         $order = Order::findOrFail($orderId);
         $order->update(['payment_status' => $trxStatus]);
 
@@ -48,18 +47,6 @@ class MidtransController extends Controller
                 'raw_response'       => json_encode($notif),
             ]
         );
-
-        // 5) Jika sukses, kurangi stok produk lewat orderItems
-        if (in_array($trxStatus, ['settlement', 'capture'])) {
-            if (! $order->stock_reduced) {
-                foreach ($order->orderItems as $item) {
-                    if ($item->product) {
-                        $item->product->decrement('quantity', $item->quantity);
-                    }
-                }
-                $order->update(['stock_reduced' => true]);
-            }
-        }
 
         return response()->json(['code' => 200]);
     }

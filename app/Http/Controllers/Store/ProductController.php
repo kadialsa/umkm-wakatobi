@@ -73,7 +73,7 @@ class ProductController extends Controller
             'regular_price'     => 'required|numeric',
             'sale_price'        => 'nullable|numeric',
             'SKU'               => 'required',
-            'stock_status'      => 'required|in:instock,outofstock',
+
             'featured'          => 'required|boolean',
             'quantity'          => 'required|integer',
             'image'             => 'required|image|mimes:png,jpg,jpeg|max:2048',
@@ -150,7 +150,6 @@ class ProductController extends Controller
             'regular_price'     => 'required|numeric',
             'sale_price'        => 'nullable|numeric',
             'SKU'               => 'required',
-            'stock_status'      => 'required|in:instock,outofstock',
             'featured'          => 'required|boolean',
             'quantity'          => 'required|integer',
             'image'             => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
