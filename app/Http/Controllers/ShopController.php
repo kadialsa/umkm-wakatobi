@@ -67,6 +67,8 @@ class ShopController extends Controller
     {
         $product = Product::where('slug', $product_slug)->first();
         $rproducts = Product::where('slug', '<>', $product_slug)->take(8)->get();
+
+        // dd($product->images);
         return view('details', compact('product', 'rproducts'));
     }
 }

@@ -5,9 +5,17 @@
       color: orange;
     }
 
+    .swiper-slide {
+      height: auto !important;
+    }
+
     /* Make product images rounded */
     .product-single__image-item img {
-      border-radius: 0.75rem;
+      border-radius: 0.5rem;
+      /* height: 100% !important; */
+      height: auto !important;
+
+
     }
 
     /* Wishlist & Share alignment */
@@ -58,72 +66,113 @@
       margin: 0;
       color: #4a5568;
     }
+
+    #thumbnailSwiper {
+      height: 420px;
+      /* atau lebih tinggi jika gambar thumb besar */
+      overflow-y: auto !important;
+    }
+
+    #thumbnailSwiper .swiper-wrapper {
+      flex-direction: column !important;
+    }
+
+    .swiper-container.thumbnail-swiper {
+      min-height: 220px;
+      max-height: 100%;
+    }
   </style>
 
+
+  {{-- Debug, tampilkan list gambar --}}
 
   <main class="pt-90">
     <div class="mb-md-1 pb-md-3"></div>
     <section class="product-single container mt-5">
       <div class="row">
+
         <div class="col-lg-7">
-          <div class="product-single__media" data-media-type="vertical-thumbnail">
+          <div class="product-single__media vertical-thumbnail" data-media-type="vertical-thumbnail">
             <div class="product-single__image">
-              <div class="swiper-container">
+              <div class="swiper-container main-image-swiper" id="mainImageSwiper">
                 <div class="swiper-wrapper">
 
-                  <div class="swiper-slide product-single__image-item">
-                    <img loading="lazy" class="h-auto" src="{{ asset('uploads/products') }}/{{ $product->image }}"
-                      width="674" height="674" alt="" />
-                    <a data-fancybox="gallery" href="{{ asset('uploads/products') }}/{{ $product->image }}"
-                      data-bs-toggle="tooltip" data-bs-placement="left" title="Zoom">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <use href="#icon_zoom" />
-                      </svg>
-                    </a>
-                  </div>
+                  @php
+                    // Split the images string into an array
+                    $productImages = !empty($product->images) ? explode(',', $product->images) : [];
+                    $totalImages = count($productImages);
+                  @endphp
 
-                  @foreach (explode(',', $product->images) as $gimg)
+                  @if ($totalImages > 0)
+                    @foreach ($productImages as $index => $image)
+                      <div class="swiper-slide product-single__image-item">
+                        <img loading="lazy" class="h-auto" src="{{ asset('uploads/products/' . trim($image)) }}"
+                          width="674" height="674" alt="{{ $product->name }}">
+                        <a data-fancybox="gallery" href="{{ asset('uploads/products/' . trim($image)) }}"
+                          data-bs-toggle="tooltip" data-bs-placement="left" title="" data-bs-original-title="Zoom">
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <use href="#icon_zoom"></use>
+                          </svg>
+                        </a>
+                      </div>
+                    @endforeach
+                  @else
+                    {{-- Fallback if no images --}}
                     <div class="swiper-slide product-single__image-item">
-                      <img loading="lazy" class="h-auto" src="{{ asset('uploads/products') }}/{{ $gimg }}"
-                        width="674" height="674" alt="" />
-                      <a data-fancybox="gallery" href="{{ asset('uploads/products') }}/{{ $gimg }}"
-                        data-bs-toggle="tooltip" data-bs-placement="left" title="Zoom">
+                      <img loading="lazy" class="h-auto" src="{{ asset('assets/images/products/no-image.jpg') }}"
+                        width="674" height="674" alt="{{ $product->name }}">
+                      <a data-fancybox="gallery" href="{{ asset('assets/images/products/no-image.jpg') }}"
+                        data-bs-toggle="tooltip" data-bs-placement="left" title="" data-bs-original-title="Zoom">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                           xmlns="http://www.w3.org/2000/svg">
-                          <use href="#icon_zoom" />
+                          <use href="#icon_zoom"></use>
                         </svg>
                       </a>
                     </div>
-                  @endforeach
+                  @endif
 
                 </div>
-                <div class="swiper-button-prev"><svg width="7" height="11" viewBox="0 0 7 11"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <use href="#icon_prev_sm" />
-                  </svg></div>
-                <div class="swiper-button-next"><svg width="7" height="11" viewBox="0 0 7 11"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <use href="#icon_next_sm" />
-                  </svg></div>
+                <div class="swiper-button-prev" id="mainImagePrev">
+                  <svg width="7" height="11" viewBox="0 0 7 11" xmlns="http://www.w3.org/2000/svg">
+                    <use href="#icon_prev_sm"></use>
+                  </svg>
+                </div>
+                <div class="swiper-button-next" id="mainImageNext">
+                  <svg width="7" height="11" viewBox="0 0 7 11" xmlns="http://www.w3.org/2000/svg">
+                    <use href="#icon_next_sm"></use>
+                  </svg>
+                </div>
               </div>
             </div>
             <div class="product-single__thumbnail">
-              <div class="swiper-container">
+              <div class="swiper-container thumbnail-swiper" id="thumbnailSwiper">
                 <div class="swiper-wrapper">
-                  <div class="swiper-slide product-single__image-item"><img loading="lazy" class="h-auto"
-                      src="{{ asset('uploads/products/thumbnails') }}/{{ $product->image }}" width="104" height="104"
-                      alt="" /></div>
-                  @foreach (explode(',', $product->images) as $gimg)
-                    <div class="swiper-slide product-single__image-item"><img loading="lazy" class="h-auto"
-                        src="{{ asset('uploads/products/thumbnails') }}/{{ $gimg }}" width="104"
-                        height="104" alt="" /></div>
-                  @endforeach
+
+                  @if ($totalImages > 0)
+                    @foreach ($productImages as $index => $image)
+                      <div class="swiper-slide product-single__image-item">
+                        <img loading="lazy" class="h-auto" src="{{ asset('uploads/products/' . trim($image)) }}"
+                          width="120" height="120" alt="{{ $product->name }}">
+                      </div>
+                    @endforeach
+                  @else
+                    {{-- Fallback thumbnail if no images --}}
+                    <div class="swiper-slide product-single__image-item">
+                      <img loading="lazy" class="h-auto" src="{{ asset('assets/images/products/no-image.jpg') }}"
+                        width="120" height="120" alt="{{ $product->name }}">
+                    </div>
+                  @endif
+
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+
+
+
         <div class="col-lg-5">
           <div class="d-flex justify-content-between mb-4 pb-md-2">
 
@@ -137,27 +186,6 @@
 
           </div>
           <h1 class="product-single__name">{{ $product->name }}</h1>
-
-          {{-- <div class="product-single__rating">
-            <div class="reviews-group d-flex">
-              <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                <use href="#icon_star" />
-              </svg>
-              <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                <use href="#icon_star" />
-              </svg>
-              <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                <use href="#icon_star" />
-              </svg>
-              <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                <use href="#icon_star" />
-              </svg>
-              <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                <use href="#icon_star" />
-              </svg>
-            </div>
-            <span class="reviews-note text-lowercase text-secondary ms-1">8k+ reviews</span>
-          </div> --}}
 
           <div class="product-single__price">
             <span class="current-price">
@@ -183,8 +211,8 @@
                 <div class="qty-control position-relative d-flex align-items-center">
                   <div class="qty-control__reduce" role="button" aria-label="Kurangi jumlah">
                     <!-- SVG ikon “kurang” -->
-                    <svg class="unf-icon" viewBox="0 0 24 24" width="16px" height="16px" fill="var(--NN300, #B3BBC9)"
-                      style="display: inline-block; vertical-align: middle;">
+                    <svg class="unf-icon" viewBox="0 0 24 24" width="16px" height="16px"
+                      fill="var(--NN300, #B3BBC9)" style="display: inline-block; vertical-align: middle;">
                       <path d="M20 12.75H4a.75.75 0 1 1 0-1.5h16a.75.75 0 1 1 0 1.5Z"></path>
                     </svg>
                   </div>
@@ -284,20 +312,6 @@
             <h6 class="mb-0">Toko {{ $product->store->name }}</h6>
           </div>
 
-          {{-- <div class="store-info-card">
-            <h5>Informasi Toko</h5>
-            <p><strong>Nama Toko:</strong> {{ $product->store->name }}</p>
-            @if ($product->store->description)
-              <p><strong>Deskripsi:</strong> {{ Str::limit($product->store->description, 100) }}</p>
-            @endif
-            @if ($product->store->owner)
-              <p><strong>Pemilik:</strong> {{ $product->store->owner->name }}</p>
-            @endif
-            <a href="#" class="btn btn-outline-primary btn-sm mt-2">
-              Lihat Toko
-            </a>
-          </div> --}}
-
 
         </div>
       </div>
@@ -308,15 +322,7 @@
               href="#tab-description" role="tab" aria-controls="tab-description" aria-selected="true">Detail
               Product</a>
           </li>
-          {{-- <li class="nav-item" role="presentation">
-            <a class="nav-link nav-link_underscore" id="tab-additional-info-tab" data-bs-toggle="tab"
-              href="#tab-additional-info" role="tab" aria-controls="tab-additional-info"
-              aria-selected="false">Additional Information</a>
-          </li>
-          <li class="nav-item" role="presentation">
-            <a class="nav-link nav-link_underscore" id="tab-reviews-tab" data-bs-toggle="tab" href="#tab-reviews"
-              role="tab" aria-controls="tab-reviews" aria-selected="false">Reviews (2)</a>
-          </li> --}}
+
         </ul>
         <div class="tab-content">
           <div class="tab-pane fade show active" id="tab-description" role="tabpanel"
@@ -448,4 +454,72 @@
 
     </section><!-- /.products-carousel container -->
   </main>
+
+  @push('scripts')
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Make sure container for thumbnail has fixed height for vertical
+        document.querySelector('#thumbnailSwiper').style.height = '400px';
+
+        // Initialize thumbnail Swiper - always vertical
+        var thumbnailSwiper = new Swiper('#thumbnailSwiper', {
+          direction: 'vertical',
+          slidesPerView: 4,
+          spaceBetween: 10,
+          freeMode: true,
+          watchSlidesProgress: true,
+          allowTouchMove: true,
+          // Responsive: At <768px, make it scrollable vertically (not horizontal)
+          breakpoints: {
+            0: {
+              direction: 'vertical',
+              slidesPerView: 3,
+              spaceBetween: 6,
+            },
+            576: {
+              direction: 'vertical',
+              slidesPerView: 4,
+              spaceBetween: 8,
+            },
+            992: {
+              direction: 'vertical',
+              slidesPerView: 5,
+              spaceBetween: 10,
+            }
+          }
+        });
+
+        // Main image Swiper
+        var mainSwiper = new Swiper('#mainImageSwiper', {
+          spaceBetween: 10,
+          loop: {{ $totalImages > 1 ? 'true' : 'false' }},
+          navigation: {
+            nextEl: '#mainImageNext',
+            prevEl: '#mainImagePrev',
+          },
+          thumbs: {
+            swiper: thumbnailSwiper,
+          },
+          on: {
+            slideChange: function() {
+              // Make sure thumbnail follows active slide
+              thumbnailSwiper.slideTo(this.activeIndex);
+            }
+          }
+        });
+
+        // Click event: klik thumbnail pindah slide utama + highlight
+        document.querySelectorAll('#thumbnailSwiper .swiper-slide').forEach((slide, index) => {
+          slide.addEventListener('click', function() {
+            mainSwiper.slideTo(index);
+
+            document.querySelectorAll('#thumbnailSwiper .swiper-slide').forEach(s => {
+              s.classList.remove('swiper-slide-thumb-active');
+            });
+            this.classList.add('swiper-slide-thumb-active');
+          });
+        });
+      });
+    </script>
+  @endpush
 @endsection
