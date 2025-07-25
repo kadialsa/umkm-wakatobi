@@ -79,7 +79,7 @@
                   </ul>
                 </li>
 
-                <li class="menu-item has-children">
+                {{-- <li class="menu-item has-children">
                   <a href="javascript:void(0);" class="menu-item-button">
                     <div class="icon">
                       <i class="icon-file-plus"></i>
@@ -94,6 +94,15 @@
                     </li>
 
                   </ul>
+                </li> --}}
+
+                <li class="menu-item">
+                  <a href="{{ route('store.orders.index') }}" class="">
+                    <div class="icon">
+                      <i class="icon-file-plus"></i>
+                    </div>
+                    <div class="text">Orders</div>
+                  </a>
                 </li>
 
                 <li class="menu-item">

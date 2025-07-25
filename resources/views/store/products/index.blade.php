@@ -61,15 +61,12 @@
               <thead>
                 <tr>
                   <th>No.</th>
-                  <th>Name</th>
+                  <th>Nama</th>
                   <th>Harga Asli</th>
                   <th>Harga Discount</th>
                   <th>SKU</th>
                   <th>Category</th>
-                  {{-- <th>Brand</th> --}}
-                  <th>Featured</th>
-                  <th>Barang Unggulan</th>
-                  <th>Stock</th>
+                  <th>Produk Unggulan</th>
                   <th>Quantity</th>
                   <th>Action</th>
                 </tr>

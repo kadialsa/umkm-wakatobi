@@ -3,7 +3,7 @@
 @section('content')
   <style>
     :root {
-      --tokopedia-green: #00ab55;
+      --tokopedia-green: #000000;
       --tokopedia-light: #f0fdf6;
     }
 

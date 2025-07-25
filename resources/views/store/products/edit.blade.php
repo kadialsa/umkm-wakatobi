@@ -188,7 +188,7 @@
 
           <div class="cols gap22">
             <fieldset class="name">
-              <div class="body-title mb-10">Regular Price <span class="tf-color-1">*</span></div>
+              <div class="body-title mb-10">Harga Asli <span class="tf-color-1">*</span></div>
               <input class="mb-10 form-control" type="text" placeholder="Enter regular price" name="regular_price"
                 tabindex="0" value="{{ $product->regular_price }}" aria-required="true" required="">
             </fieldset>
@@ -196,7 +196,7 @@
               <span class="alert alert-danger text-center">{{ $message }}</span>
             @enderror
             <fieldset class="name">
-              <div class="body-title mb-10">Sale Price <span class="tf-color-1">*</span></div>
+              <div class="body-title mb-10">Harga Dicount <span class="tf-color-1">*</span></div>
               <input class="mb-10 form-control" type="text" placeholder="Enter sale price" name="sale_price"
                 tabindex="0" value="{{ $product->sale_price }}" aria-required="true" required="">
             </fieldset>
@@ -230,7 +230,7 @@
           <div class="cols gap22">
 
             <fieldset class="name">
-              <div class="body-title mb-10">Featured</div>
+              <div class="body-title mb-10">Produk Unggulan</div>
               <div class="select mb-10">
                 <select class="" name="featured">
                   <option value="0" {{ $product->featured == '0' ? 'selected' : '' }}>No</option>
