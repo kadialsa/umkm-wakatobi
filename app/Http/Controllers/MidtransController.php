@@ -38,15 +38,30 @@ class MidtransController extends Controller
         $order = Order::findOrFail($orderId);
         $order->update(['payment_status' => $trxStatus]);
 
+        // OrderPayment::updateOrCreate(
+        //     ['transaction_id' => $midOrderId],
+        //     [
+        //         'order_id'           => $order->id,
+        //         'snap_token'         => $notif->token ?? null,
+        //         'transaction_status' => $trxStatus,
+        //         'fraud_status'       => $fraudStatus,
+        //         'raw_response'       => json_encode($notif),
+        //     ]
+        // );
+
+        $payload = [
+            'order_id'           => $order->id,
+            'transaction_status' => $trxStatus,
+            'fraud_status'       => $fraudStatus,
+            'raw_response'       => json_encode($notif),
+        ];
+        // simpan token hanya jika ada (di kebanyakan webhook, token = null)
+        if (! empty($notif->token)) {
+            $payload['snap_token'] = $notif->token;
+        }
         OrderPayment::updateOrCreate(
             ['transaction_id' => $midOrderId],
-            [
-                'order_id'           => $order->id,
-                'snap_token'         => $notif->token ?? null,
-                'transaction_status' => $trxStatus,
-                'fraud_status'       => $fraudStatus,
-                'raw_response'       => json_encode($notif),
-            ]
+            $payload
         );
 
         // 5) Jika sukses, kurangi stok produk lewat orderItems

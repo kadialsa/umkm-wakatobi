@@ -87,41 +87,88 @@ class UserController extends Controller
             ->with('status', 'Profil berhasil diperbarui.');
     }
 
+    // public function orders(Request $request)
+    // {
+    //     $userId = Auth::id();
+
+    //     // Ambil SEMUA order milik user
+    //     $orders = Order::where('user_id', $userId)
+    //         ->with('payments')   // eager load relation ke order_payments
+    //         ->orderBy('created_at', 'DESC')
+    //         ->paginate(10);
+
+    //     // Konfig Midtrans untuk Snap JS
+    //     Config::$serverKey    = config('midtrans.server_key');
+    //     Config::$clientKey    = config('midtrans.client_key');
+    //     Config::$isProduction = config('midtrans.is_production');
+    //     Config::$isSanitized  = config('midtrans.is_sanitized');
+    //     Config::$is3ds        = config('midtrans.is_3ds');
+
+    //     // Kumpulkan snap_token dari payment terakhir jika statusnya 'pending'
+    //     $snapTokens = [];
+    //     foreach ($orders as $order) {
+    //         $lastPayment = OrderPayment::where('order_id', $order->id)
+    //             ->latest('created_at')
+    //             ->first();
+
+    //         if (
+    //             $lastPayment
+    //             && in_array($lastPayment->transaction_status, ['pending', 'unpaid'])
+    //             && $lastPayment->snap_token
+    //         ) {
+    //             $snapTokens[$order->id] = $lastPayment->snap_token;
+    //         }
+    //     }
+
+    //     return view('user.orders', compact('orders', 'snapTokens'));
+    // }
+
     public function orders(Request $request)
     {
         $userId = Auth::id();
 
-        // Ambil SEMUA order milik user
+        // 1) Ambil orders + eager load payments (baru saja dibuat)
         $orders = Order::where('user_id', $userId)
-            ->with('payments')   // eager load relation ke order_payments
-            ->orderBy('created_at', 'DESC')
+            ->with(['payments' => function ($q) {
+                $q->orderBy('created_at', 'desc');
+            }])
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        // Konfig Midtrans untuk Snap JS
+        // 2) Konfig Midtrans untuk Snap JS
         Config::$serverKey    = config('midtrans.server_key');
         Config::$clientKey    = config('midtrans.client_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized  = config('midtrans.is_sanitized');
         Config::$is3ds        = config('midtrans.is_3ds');
 
-        // Kumpulkan snap_token dari payment terakhir jika statusnya 'pending'
-        $snapTokens = [];
-        foreach ($orders as $order) {
-            $lastPayment = OrderPayment::where('order_id', $order->id)
-                ->latest('created_at')
-                ->first();
+        // 3) Siapkan token dari session (jika ada)
+        $sessionTokens = session('snap_tokens', []);
 
+        // 4) Kumpulkan snap_token:
+        //    - ưu tiên DB jika payment terakhir punya token,
+        //    - kalau tidak, fallback ke session
+        $snapTokens = $orders->mapWithKeys(function ($order) use ($sessionTokens) {
+            $lastPayment = $order->payments->first();
+            // jika status pending/unpaid dan DB punya token
             if (
                 $lastPayment
                 && in_array($lastPayment->transaction_status, ['pending', 'unpaid'])
                 && $lastPayment->snap_token
             ) {
-                $snapTokens[$order->id] = $lastPayment->snap_token;
+                return [$order->id => $lastPayment->snap_token];
             }
-        }
+            // fallback ke session
+            if (isset($sessionTokens[$order->id])) {
+                return [$order->id => $sessionTokens[$order->id]];
+            }
+            return [];
+        })->toArray();
 
         return view('user.orders', compact('orders', 'snapTokens'));
     }
+
+
 
     public function orders_details($order_id)
     {

@@ -255,7 +255,7 @@
 
           {{-- Tombol Aksi --}}
           <div class="d-flex gap-2 mb-5">
-            @if ($needsPayment && session('snap_tokens')[$order->id] ?? false)
+            @if ($needsPayment && (session('snap_tokens', [])[$order->id] ?? false))
               <button id="pay-now" type="button" class="btn btn-success"
                 data-token="{{ session('snap_tokens')[$order->id] }}">
                 <i class="fa fa-credit-card me-1"></i>Bayar Sekarang

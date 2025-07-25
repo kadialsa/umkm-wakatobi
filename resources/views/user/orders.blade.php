@@ -3,7 +3,7 @@
 @section('content')
   <style>
     :root {
-      /* --tokopedia-green: #00ab55; */
+      --tokopedia-green: #00ab55;
       --tokopedia-light: #f0fdf6;
     }
 
@@ -119,19 +119,20 @@
         <div class="col-lg-3">
           @include('user.account-nav')
         </div>
-        <div class="col-lg-9 ">
+        <div class="col-lg-9">
           <div class="page-content my-account__address">
             @forelse($orders as $order)
               @php
-                $map = [
+                $statusMap = [
                     'ordered' => ['Dipesan', 'badge-dipesan'],
                     'shipped' => ['Dikirim', 'badge-dikirim'],
                     'delivered' => ['Terkirim', 'badge-terkirim'],
                     'completed' => ['Selesai', 'badge-selesai'],
                     'canceled' => ['Dibatalkan', 'badge-dibatalkan'],
                 ];
-                [$lbl, $cls] = $map[$order->status] ?? [ucfirst($order->status), 'badge-secondary'];
+                [$label, $class] = $statusMap[$order->status] ?? [ucfirst($order->status), 'badge-secondary'];
                 $token = $snapTokens[$order->id] ?? null;
+                $needsPayment = in_array($order->payments->pluck('transaction_status')->last(), ['pending', 'unpaid']);
               @endphp
 
               <div class="order-card">
@@ -139,7 +140,7 @@
                   <div class="order-id">
                     #{{ $order->id }} <small class="text-muted">{{ $order->created_at->format('d M Y') }}</small>
                   </div>
-                  <span class="badge-status {{ $cls }}">{{ $lbl }}</span>
+                  <span class="badge-status {{ $class }}">{{ $label }}</span>
                 </div>
 
                 <div class="order-body">
@@ -172,9 +173,9 @@
                 </div>
 
                 <div class="order-actions">
-                  @if ($token)
+                  @if ($token && $needsPayment)
                     <button class="btn btn-success pay-now" data-token="{{ $token }}">
-                      <i class="fa fa-credit-card"></i> Bayar
+                      <i class="fa fa-credit-card"></i> Bayar Sekarang
                     </button>
                   @endif
                   <a href="{{ route('user.order.details', $order->id) }}" class="btn btn-dark btn-sm">
@@ -192,7 +193,6 @@
               </div>
             @endif
           </div>
-
         </div>
       </div>
     </section>
@@ -205,23 +205,26 @@
     data-client-key="{{ config('midtrans.client_key') }}"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const opts = {
-        onSuccess: handle,
-        onPending: handle,
-        onError: handle
+      const snapOptions = {
+        onSuccess: handleSnapResult,
+        onPending: handleSnapResult,
+        onError: handleSnapResult,
       };
-      document.querySelectorAll('.pay-now').forEach(btn =>
-        btn.addEventListener('click', () => snap.pay(btn.dataset.token, opts))
-      );
 
-      function handle(res) {
+      document.querySelectorAll('.pay-now').forEach(btn => {
+        btn.addEventListener('click', () => {
+          snap.pay(btn.dataset.token, snapOptions);
+        });
+      });
+
+      function handleSnapResult(result) {
         fetch("{{ route('midtrans.notification') }}", {
           method: 'POST',
           headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(res)
+          body: JSON.stringify(result)
         }).then(() => location.reload());
       }
     });
