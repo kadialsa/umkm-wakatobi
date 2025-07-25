@@ -54,7 +54,7 @@
                 <th>Tagline</th>
                 <th>Judul</th>
                 <th>Subjudul</th>
-                <th>Link</th>
+                {{-- <th>Link</th> --}}
                 <th>Aksi</th>
               </tr>
             </thead>
@@ -76,9 +76,9 @@
                     <td>{{ $slide->tagline }}</td>
                     <td>{{ $slide->title }}</td>
                     <td>{{ $slide->subtitle }}</td>
-                    <td>
+                    {{-- <td>
                       <a href="{{ $slide->link }}" target="_blank">{{ Str::limit($slide->link, 30) }}</a>
-                    </td>
+                    </td> --}}
                     <td>
                       <div class="list-icon-function">
                         <a href="{{ route('admin.slide.edit', $slide->id) }}">
