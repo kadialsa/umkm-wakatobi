@@ -98,10 +98,24 @@
                 <div class="swiper-wrapper">
 
                   @php
-                    // Split the images string into an array
-                    $productImages = !empty($product->images) ? explode(',', $product->images) : [];
-                    $totalImages = count($productImages);
+                    // Konversi images ke array
+                    $imagesArray = !empty($product->images) ? explode(',', $product->images) : [];
+
+                    // Ambil image utama (string)
+                    $mainImage = !empty($product->image) ? $product->image : null;
+
+                    // Merge jadi satu array, image utama di depan (jika belum ada)
+                    $mergedImages = $imagesArray;
+                    if ($mainImage && !in_array($mainImage, $mergedImages)) {
+                        array_unshift($mergedImages, $mainImage);
+                    }
+                    // Hilangkan duplikat (opsional, untuk jaga-jaga)
+                    $productImages = array_unique($mergedImages);
+
+                    // Hitung total images hasil merge
+                    $totalImages = count($mergedImages);
                   @endphp
+
 
                   @if ($totalImages > 0)
                     @foreach ($productImages as $index => $image)
